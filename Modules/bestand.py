@@ -1,13 +1,12 @@
 import pyewf
 import pytsk3
 import binascii
-import StringIO
+import datetime
 import re
- 
-from langdetect import detect_langs 
+
+from StringIO import StringIO
 from tabulate import tabulate 
 from zipfile import ZipFile
-
 from Utils.FileType import * 
 
 class Bestand():
@@ -21,14 +20,11 @@ class Bestand():
         self.main.images[0].ewf_img_info.partition_report()  
         input = int(raw_input('Please choose an parition to generate hashlist for [0-9]: '))
         self.main.images[0].ewf_img_info.partities[input].files_rapport() 
-        
+
+
     def generate_timeline(self): 
-        print 'Please select an image to create Timeline: '
 
-        for a in range(len(self.main.images)):
-            print '\t[' + str(a) + '] '+ self.main.images[a].image_path
-
-        image = int(raw_input('\nPlease Choose an option [0-9]: '))
+        partitie = self.select_partition()
       
         print 'Please select on what value to order:'
         print '\t[0] File Created'
@@ -45,7 +41,7 @@ class Bestand():
         print 'Generating List......' 
 
         timeline = []
-        files = self.main.images[image].get_all_files() 
+        files = partitie.files
     
         for file in files:
             timeline.append((file.create, file.modify, file.change, file))
@@ -73,110 +69,79 @@ class Bestand():
         for obj in array:
             file.write(';'.join(str(e) for e in obj) + '\n')
 
-    def detect_language(self):
-
+    def select_partition(self):
         print 'Please select an image: '
-        
-        #Printing all images with their path
+        # Printing all images with their path
         for a in range(len(self.main.images)):
-            print '\t[' + str(a) + '] '+ self.main.images[a].image_path
-
+            print '\t[' + str(a) + '] ' + self.main.images[a].image_path
         image = int(raw_input('\nPlease Choose an option [0-9]: '))
-      
         print 'Please select an Partition: '
-        #Printing all Partitions from Selected Image
+        # Printing all Partitions from Selected Image
         for part in range(len(self.main.images[image].ewf_img_info.partities)):
-            print '\t[' + str(part) + '] '+ self.main.images[image].ewf_img_info.partities[part].desc
+            print '\t[' + str(part) + '] ' + self.main.images[image].ewf_img_info.partities[part].desc
 
         part = int(raw_input('\nPlease Choose an option [0-9]: '))
+        return self.main.images[image].ewf_img_info.partities[part]
 
-        #Printing all files with ID
-        for file in range(len(self.main.images[image].ewf_img_info.partities[part].files)):
+
+    def select_file(self):
+        partitie = self.select_partition()
+        # Printing all files with ID
+        for file in range(len(partitie.files)):
             try:
-                print '\t[' + str(file) + '] '+ self.main.images[image].ewf_img_info.partities[part].files[file].name
+                print '\t[' + str(file) + '] ' + partitie.files[file].name
             except:
                 pass
-
         file = int(raw_input('\nPlease select an file: '))
+        # Getting object of selected file
+        return partitie.files[file]
 
+
+
+    def detect_language(self):
         #Getting object of selected file
-        file_handle = self.main.images[image].ewf_img_info.partities[part].files[file]
+        file_handle = self.select_file()
 
         #Printing basic information
-        print ' ' + '==' * 22  
+        print  '==' * 30
         print 'Filename:\t' + file_handle.name
         print 'SHA1:\t\t' + str(file_handle.sha1())
-        print 'SHA256:\t\t' + str(file_handle.sha256())   
+        print 'SHA256:\t\t' + str(file_handle.sha256())
 
-        #Requested language from file  
+        #Requested language from file
         file_handle.print_language_table()
-        print ' ' + '==' * 22
-  
+        print  '==' * 30
+
+
     def generate_ziplist(self):
-        #zip = ZipFile(file) 
-        #print zip.namelist()  
+        file_handle = self.select_file()
+        zip = ZipFile(StringIO(file_handle.read_raw_bytes()))
+        zip_array = []
+        for info in zip.infolist():
+            zip_array.append([info.filename, datetime.datetime(*info.date_time), info.file_size])
 
-        files = self.main.images[0].get_all_files()
+        print '\t[0] Print Filetypes'
+        print '\t[1] Export Filetypes (CSV)'
 
-        timeline = []
-        for file in files:
-            timeline.append((file.change, file.create, file.modify, file))
+        input = int(raw_input('\nPlease Choose an option [0-9]: '))
+        if input == 0:
+            print tabulate(zip_array, headers=['Filename', 'Created', 'Size'])
+        else:
+            self.save_array_to_csv(zip_array, 'Filename;Created;Size')
 
-        print timeline[0]
-
-        timeline = sorted(timeline, key=lambda bestand:bestand[2], reverse=False)
- 
-        for file in timeline:
-            print 
-        print timeline[0][0]
-
-        '''for file in files:
-            try:
-                for format in self.signatures: 
-                    bin = binascii.unhexlify(format['hex']) 
-                    head = file.head(len(bin))
-                    if bin == head:
-                        print file.name,  format['format']
-                        break
-            except:
-                pass
-                #data = f.read(len(bin))
-            #if(bin == data):
-            #    found.append('Byte: '+str(i)+' \tExtension: '+format['ext']+' \tFormat: '+format['format'])
-        '''
-
-     
-         
     def generate_filetypelist(self):
-        print 'Please select an image: '
-        
-        #Printing all images with their path
-        for a in range(len(self.main.images)):
-            print '\t[' + str(a) + '] '+ self.main.images[a].image_path
-
-        image = int(raw_input('\nPlease Choose an option [0-9]: '))
-      
-        print 'Please select an Partition: '
-        #Printing all Partitions from Selected Image
-        for part in range(len(self.main.images[image].ewf_img_info.partities)):
-            print '\t[' + str(part) + '] '+ self.main.images[image].ewf_img_info.partities[part].desc
-
-        part = int(raw_input('\nPlease Choose an option [0-9]: '))
-
-        #Saving files array to local object
-        files = self.main.images[image].ewf_img_info.partities[part].files
+        files = self.select_partition().files
         file_array = []
         for file in files:
             type = FileType(file).analyse()  
             if type[1] is not '':
                 type.append(file.name)
-                file_array.append(type )  
+                file_array.append(type)
 
         print '\t[0] Print Filetypes'
         print '\t[1] Export Filetypes (CSV)'
         
         input = int(raw_input('\nPlease Choose an option [0-9]: '))
-
         if input == 0:
             print tabulate(file_array, headers=['Extention', 'Description', 'Filename'])
         else:
