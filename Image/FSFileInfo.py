@@ -2,7 +2,8 @@ import hashlib
 import re
 
 from langdetect import detect_langs
-
+from shutil import copyfileobj
+from StringIO import StringIO
 from Utils.log import *
 from Utils.FileType import * 
 
@@ -22,15 +23,11 @@ class FSFileInfo():
     def get_attributes(self):
         return [self.name, self.size, self.create, self.change, self.modify, self.md5(), self.sha256()]
          
-    def export(self, path, filename):
-        raw_bytes = self.object_handle.read_random(0, self.size)
-        #TODO: Path combineren met filename: shit fixen 
-        # at juiste slash wordt gebruikt (\/\/\/\)
-        # bij linux en Windows
-        
-        export_file = open(path , 'wb')
-        export_file.write(raw_bytes)
-        export_file.close()
+    def export(self,):
+        raw_bytes = StringIO(self.object_handle.read_random(0, self.size))
+        file = open(self.name, 'w')
+        raw_bytes.seek(0)
+        copyfileobj(raw_bytes, file)
 
     #Header of file
     def head(self, size=4):
@@ -66,7 +63,6 @@ class FSFileInfo():
             language_array.append(str(lang).split(':'))
         #Printing Array as Table
         print tabulate(language_array, headers=['Language', '.%'])
-
 
     #Hashing Objects
     def md5(self): 
