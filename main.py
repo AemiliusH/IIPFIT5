@@ -33,7 +33,7 @@ class Hoofdmenu():
         self.foto = Foto(self)
   
         self.print_header()
-        self.bestand.run()
+        self.cli()
 
     def cli(self):
         while True:
