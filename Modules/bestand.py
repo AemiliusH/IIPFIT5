@@ -22,24 +22,20 @@ class Bestand():
         self.main.images[0].ewf_img_info.partities[input].files_rapport() 
 
 
-    def generate_timeline(self): 
-
+    def generate_timeline(self):
         partitie = self.select_partition()
       
         print 'Please select on what value to order:'
         print '\t[0] File Created'
         print '\t[1] File Modified'
         print '\t[2] File Changed'
-
         type = int(raw_input('\nPlease Choose an option [0-9]: '))
 
         print '\t[0] Oldest First'
         print '\t[1] Newest First'
-
         order = bool(int(raw_input('\nPlease choose an option[0-9]: ')))
       
-        print 'Generating List......' 
-
+        print 'Generating List......'
         timeline = []
         files = partitie.files
     
@@ -83,7 +79,6 @@ class Bestand():
         part = int(raw_input('\nPlease Choose an option [0-9]: '))
         return self.main.images[image].ewf_img_info.partities[part]
 
-
     def select_file(self):
         partitie = self.select_partition()
         # Printing all files with ID
@@ -95,8 +90,6 @@ class Bestand():
         file = int(raw_input('\nPlease select an file: '))
         # Getting object of selected file
         return partitie.files[file]
-
-
 
     def detect_language(self):
         #Getting object of selected file
@@ -110,8 +103,7 @@ class Bestand():
 
         #Requested language from file
         file_handle.print_language_table()
-        print  '==' * 30
-
+        print '==' * 30
 
     def generate_ziplist(self):
         file_handle = self.select_file()
