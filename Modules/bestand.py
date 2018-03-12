@@ -19,7 +19,7 @@ class Bestand():
         #TODO: Selecteren van image 
         self.main.images[0].ewf_img_info.partition_report()  
         input = int(raw_input('Please choose an parition to generate hashlist for [0-9]: '))
-        self.main.images[0].ewf_img_info.partities[input].files_rapport() 
+        self.main.images[0].ewf_img_info.get_partitions()[input].files_rapport()
 
 
     def generate_timeline(self):
@@ -73,11 +73,12 @@ class Bestand():
         image = int(raw_input('\nPlease Choose an option [0-9]: '))
         print 'Please select an Partition: '
         # Printing all Partitions from Selected Image
-        for part in range(len(self.main.images[image].ewf_img_info.partities)):
-            print '\t[' + str(part) + '] ' + self.main.images[image].ewf_img_info.partities[part].desc
+        for part in range(len(self.main.images[image].ewf_img_info.get_partitions())):
+            partition_pointer = self.main.images[image].ewf_img_info.get_partitions()[part]
+            print '\t[' + str(part) + '] ' + partition_pointer.desc + " - " + str(partition_pointer.size / 1024) + "MB"
 
         part = int(raw_input('\nPlease Choose an option [0-9]: '))
-        return self.main.images[image].ewf_img_info.partities[part]
+        return self.main.images[image].ewf_img_info.get_partitions()[part]
 
     def select_file(self):
         partitie = self.select_partition()
@@ -139,7 +140,6 @@ class Bestand():
         else:
             self.save_array_to_csv(file_array, 'Extention;Description;FileName')
 
-
     def cli(self):
         while True:
             print ''
@@ -168,10 +168,9 @@ class Bestand():
                 self.detect_language()
             if input == 6:
                 break
- 
+
     def run(self):
         if len(self.main.images) == 0:
             print "Please import an image before using modules!"
         else: 
-            self.cli() 
- 
+            self.cli()

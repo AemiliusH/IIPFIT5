@@ -7,8 +7,9 @@ from FSFileInfo import *
 
 
 class FSParInfo():
-    def __init__(self, partition_handle, volume_info, image_info):
+    def __init__(self, partition_handle, volume_info, image_info, image):
         #self.ewf_handle = ewf_handle
+        self.image = image
         self.partition_handle = partition_handle
         self.volume_info = volume_info 
         self.image_info = image_info

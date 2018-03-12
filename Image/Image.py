@@ -14,7 +14,7 @@ class Image():
         self.ewf_handle.open(self.image_files)
 
         #Creating Object for Image
-        self.ewf_img_info = EWFImgInfo(self.ewf_handle)
+        self.ewf_img_info = EWFImgInfo(self.ewf_handle, self)
  
         DebugLog("Image succesfully loaded!")
 
