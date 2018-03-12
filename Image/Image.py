@@ -22,8 +22,7 @@ class Image():
          
     def get_all_files(self):
         files = []
-        for partitie in self.ewf_img_info.partities:
+        for partitie in self.ewf_img_info.get_partitions():
             files.extend(partitie.files)
-
         return files
 

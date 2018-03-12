@@ -45,8 +45,8 @@ class EWFImgInfo(pytsk3.Img_Info):
     def partition_report(self): 
         partition_array = [] 
 
-        for count in range(len(self.partities)):
-            partition_array.append([count, self.partities[count].len, self.partities[count].desc]) 
+        for count in range(len(self.get_partitions())):
+            partition_array.append([count, self.get_partitions()[count].len, self.get_partitions()[count].desc])
   
         print tabulate(partition_array, headers=["Addr", "Size", "Description"])
         print ''
