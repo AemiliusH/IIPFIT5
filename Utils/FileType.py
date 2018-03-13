@@ -41,6 +41,7 @@ class FileType:
     signatures = [
     {'hex':'4D5A', 'ext':'EXE', 'format':'DOS executable file'},
         # {'hex':'', 'ext':'', 'format':''},
+    {'hex':'53514C6974', 'ext':'.SQLITE3', 'format':'SQLite 3'},
     {'hex':'00000100', 'ext':'ICO', 'format':'Windows icon|printer spool file'},
     {'hex':'494433', 'ext':'MP3', 'format':'MP3 audio file'},
     {'hex':'818102000200070104', 'ext':'AVB', 'format':'MS Chat Character'},
