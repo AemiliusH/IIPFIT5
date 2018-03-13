@@ -40,7 +40,9 @@ class FileType:
          
     signatures = [
     {'hex':'4D5A', 'ext':'EXE', 'format':'DOS executable file'},
-    #{'hex':'', 'ext':'', 'format':''},  
+        # {'hex':'', 'ext':'', 'format':''},
+    {'hex':'00000100', 'ext':'ICO', 'format':'Windows icon|printer spool file'},
+    {'hex':'494433', 'ext':'MP3', 'format':'MP3 audio file'},
     {'hex':'818102000200070104', 'ext':'AVB', 'format':'MS Chat Character'},
     {'hex':'81810300020007010400', 'ext':'BGB', 'format':'MS Chat Background File'},
     {'hex':'3B2068656C702E687066', 'ext':'HPF', 'format':'HP LaserJet Fonts'},
