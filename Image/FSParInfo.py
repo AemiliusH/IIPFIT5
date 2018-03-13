@@ -36,30 +36,31 @@ class FSParInfo():
     def get_root(self):
         self.root = self.fs_handle.open_dir(path="/")
 
-    def recurse_dir(self, dir):
+    def recurse_dir(self, dir, parent):
         self.dirs.append(dir.info.meta.addr)
+        parent = parent  + dir.info.name.name + '\\'
         dir = dir.as_directory()
         for object in dir:
             try:  
                 if object.info.meta.type == pytsk3.TSK_FS_META_TYPE_DIR:
                     #Creating nested loop!
                     if object.info.meta.addr not in self.dirs:
-                        self.recurse_dir(object)
+                        self.recurse_dir(object, parent)
                 else:
-                    self.files.append(FSFileInfo(object))  
+                    self.files.append(FSFileInfo(object, parent))
             except AttributeError:
                 DebugLog('Error parsing Object: ' + object.info.name.name)
 
     def recurse_files(self):
         self.dirs.append(self.root.info.fs_file.meta.addr)
-
+        parent = "\\"
         #Nested loop voor het uitlezen van mappen in mappen
         for object in self.root: 
             try:
                 if object.info.meta.type == pytsk3.TSK_FS_META_TYPE_DIR:
-                    self.recurse_dir(object) 
+                    self.recurse_dir(object, parent)
                 else: 
-                    self.files.append(FSFileInfo(object)) 
+                    self.files.append(FSFileInfo(object, parent))
             except AttributeError: 
                 DebugLog('Error parsing Object: ' + object.info.name.name)
          
@@ -68,7 +69,7 @@ class FSParInfo():
         for object in self.files:
             attribute_array.append(object.get_attributes())
  
-        print tabulate(attribute_array, headers=['Name', 'Size', 'Created', 'Changed', 'Modified', 'MD5', 'SHA256'])
+        print tabulate(attribute_array, headers=['Path', 'Name', 'Size', 'Created', 'Changed', 'Modified', 'MD5', 'SHA256'])
 
     def size(self):
         return ewf_handle.media_size()

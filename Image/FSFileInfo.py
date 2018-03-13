@@ -12,7 +12,8 @@ class FSFileInfo():
     name = ''
     extention = '' 
 
-    def __init__(self, object_handle):
+    def __init__(self, object_handle, path):
+        self.path = path
         self.object_handle = object_handle
         self.size = self.object_handle.info.meta.size
         self.name = object_handle.info.name.name
@@ -21,7 +22,7 @@ class FSFileInfo():
         self.modify = datetime.utcfromtimestamp(self.object_handle.info.meta.mtime)
  
     def get_attributes(self):
-        return [self.name, self.size, self.create, self.change, self.modify, self.md5(), self.sha256()]
+        return [self.path, self.name, self.size, self.create, self.change, self.modify, self.md5(), self.sha256()]
          
     def export(self,):
         raw_bytes = StringIO(self.object_handle.read_random(0, self.size))
@@ -35,6 +36,9 @@ class FSFileInfo():
             return self.object_handle.read_random(0, size)
         except:
             return '' 
+
+    def get_extention(self):
+        return FileType(self).analyse()
 
     def read_raw_bytes(self):
         try:
