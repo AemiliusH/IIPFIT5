@@ -152,7 +152,8 @@ class Bestand():
             print '\t[3] Generate Timeline'
             print '\t[4] List Filetypes'
             print '\t[5] Find Used Languages'
-            print '\t[6] Back'
+            print '\t[6] Export File'
+            print '\t[7] Back'
             print ''
 
             input = int(raw_input('Please choose an option [0-9]: '))
@@ -167,7 +168,12 @@ class Bestand():
             if input == 5:
                 self.detect_language()
             if input == 6:
+                self.export_file()
+            if input == 7:
                 break
+
+    def export_file(self):
+        self.select_file().export()
 
     def run(self):
         if len(self.main.images) == 0:
