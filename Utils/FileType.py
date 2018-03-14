@@ -18,7 +18,6 @@ class FileType:
             if sig_head == head[:len(sig_head)]:
                 resultset.append(signature) 
         return resultset
-                 
 
     def analyse(self):
         signatures = self.analyse_header() 

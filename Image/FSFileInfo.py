@@ -22,7 +22,7 @@ class FSFileInfo():
         self.modify = datetime.utcfromtimestamp(self.object_handle.info.meta.mtime)
  
     def get_attributes(self):
-        return [self.path, self.name, self.size, self.create, self.change, self.modify, self.md5(), self.sha256()]
+        return [self.name, self.size, self.create, self.change, self.modify, self.md5(), self.sha256()]
          
     def export(self,):
         raw_bytes = StringIO(self.object_handle.read_random(0, self.size))

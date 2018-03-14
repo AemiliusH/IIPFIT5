@@ -69,7 +69,7 @@ class FSParInfo():
         for object in self.files:
             attribute_array.append(object.get_attributes())
  
-        print tabulate(attribute_array, headers=['Path', 'Name', 'Size', 'Created', 'Changed', 'Modified', 'MD5', 'SHA256'])
+        print tabulate(attribute_array, headers=['Name', 'Size', 'Created', 'Changed', 'Modified', 'MD5', 'SHA256'])
 
     def size(self):
         return ewf_handle.media_size()

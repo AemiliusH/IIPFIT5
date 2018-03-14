@@ -7,7 +7,9 @@ import re
 from StringIO import StringIO
 from tabulate import tabulate 
 from zipfile import ZipFile
-from Utils.FileType import * 
+
+from Utils.FileType import *
+from Utils.VirusToal import  *
 
 class Bestand():
 
@@ -107,7 +109,17 @@ class Bestand():
         print '==' * 30
 
     def generate_ziplist(self):
-        file_handle = self.select_file()
+        partitie = self.select_partition()
+        ziplist = []
+
+        for a in range(len(partitie.files)):
+            if partitie.files[a].get_extention()[0] is 'ZIP':
+                print '\t[' + str(len(ziplist)) + ']  \t' + partitie.files[a].name
+                ziplist.append(partitie.files[a])
+
+
+        zip_id = int(raw_input("Please select an zipfile [0-9]"))
+        file_handle = ziplist[zip_id]
         zip = ZipFile(StringIO(file_handle.read_raw_bytes()))
         zip_array = []
         for info in zip.infolist():
@@ -153,7 +165,8 @@ class Bestand():
             print '\t[4] List Filetypes'
             print '\t[5] Find Used Languages'
             print '\t[6] Export File'
-            print '\t[7] Back'
+            print '\t[7] VirusTotal'
+            print '\t[8] Back'
             print ''
 
             input = int(raw_input('Please choose an option [0-9]: '))
@@ -170,7 +183,13 @@ class Bestand():
             if input == 6:
                 self.export_file()
             if input == 7:
+                self.virustotal_file()
+            if input == 8:
                 break
+
+    def virustotal_file(self):
+        file = self.select_file()
+        total = VirusTotal(file).lookup_hash()
 
     def export_file(self):
         self.select_file().export()
