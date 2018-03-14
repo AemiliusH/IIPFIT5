@@ -13,14 +13,6 @@ class Browser():
     def __init__(self, hoofdmenu):
         self.hoofdmenu_refrentie = hoofdmenu
 
-    def tel_files(self):
-        for file in range(len(self.hoofdmenu_refrentie.images[0].ewf_img_info.partities[0].files)):
-            try:
-                print '\t[' + str(file) + '] ' + \
-                      self.hoofdmenu_refrentie.images[0].ewf_img_info.get_partitions()[0].files[file].name
-            except:
-                pass
-
     def select_partition(self):
         print 'Please select an image: '
         # Printing all images with their path
@@ -42,22 +34,36 @@ class Browser():
     def cli(self):
         while True:
             print "\t[1] Identify Browsers"
-            print "\t[2] Cookies"
-            print "\t[3] Bookmarks"
-            print "\t[4] History"
-            print "\t[5] Back"
+            print "\t[2] Attributes"
+            print "\t[3] Back"
 
             input = int(raw_input('Please choose an option [0-9]: '))
             if input == 1:
                 self.identify_browser_windows()
             if input == 2:
-                self.cookies()
+                self.attributes()
             if input == 3:
+                break
+
+    def attributes(self):
+        while True:
+            print "\t[1] Cookies"
+            print "\t[2] Bookmarks"
+            print "\t[3] History"
+            print "\t[4] Downloads"
+            print "\t[5] Back"
+
+            input = int(raw_input('Please choose an option [0-9]: '))
+            if input == 1:
+                self.cookies()
+            if input == 2:
                 self.bookmarks()
-            if input == 4:
+            if input == 3:
                 self.history()
+            if input == 4:
+                self.downloads()
             if input == 5:
-                self.tel_files()
+                break
 
     def identify_browser_windows(self):
         browse_arr = []
@@ -87,6 +93,12 @@ class Browser():
     class Bookmarks(object):
         pass
 
+    class History(object):
+        pass
+
+    class Cookie(object):
+        pass
+
     def loadSession(self):
         """"""
         dbPath = 'places.sqlite'
@@ -101,62 +113,109 @@ class Browser():
         return session
 
     def cookies(self):
+        cookies_arr = []
         paritie = self.select_partition()
         for bestand in paritie.files:
             type = FileType(bestand).analyse()
 
-            #Checken of bestand van type sqlite3 is
-            #if 'SQLITE3' in type[0]:
+            # Checken of bestand van type sqlite3 is
+            # if 'SQLITE3' in type[0]:
             if 'cookies' in bestand.name:
-                #bestand.export()
-                engine = create_engine('sqlite:///%s' % bestand.name, echo=True)
+                # bestand.export_to()
+                path = 'cookies.sqlite'  # bestand.name
+                engine = create_engine('sqlite:///%s' % path, echo=False)
                 meta = MetaData(engine)
-                moz_bookmarks = Table('moz_cookies', meta, autoload=True)
+                moz_cookies = Table('moz_cookies', meta, autoload=True)
+                mapper(self.Cookie, moz_cookies)
+
+                Session = sessionmaker(bind=engine)
+                session = Session()
+                cookies = session.query(self.Cookie).all()
+                print 'Gevonden cookie\'s zijn: '
+                for cookie in cookies:
+                    cookies_arr.append([cookie.name, cookie.host])
+                print tabulate(cookies_arr, headers=["Naam", "Host"])
+
+                # path.remove()
+
+            # if type[0] is '.SQLITE3':
+            #   print bestand.path + bestand.name
+
+    def bookmarks(self):
+        bookmarks_arr = []
+        paritie = self.select_partition()
+        for bestand in paritie.files:
+            type = FileType(bestand).analyse()
+
+            # Checken of bestand van type sqlite3 is
+            # if 'SQLITE3' in type[0]:
+            if 'places' in bestand.name:
+                # bestand.export_to()
+                path = 'places.sqlite'  # bestand.name
+                engine = create_engine('sqlite:///%s' % path, echo=False)
+                meta = MetaData(engine)
+                moz_bookmarks = Table('moz_bookmarks', meta, autoload=True)
                 mapper(self.Bookmarks, moz_bookmarks)
 
                 Session = sessionmaker(bind=engine)
                 session = Session()
-                print session.query(self.Bookmarks).all()
 
+                bookmarks = session.query(self.Bookmarks).all()
+                print 'Gevonden Bookmarks\'s zijn: '
+                for bookmark in bookmarks:
+                    bookmarks_arr.append([bookmark.title])
+                print tabulate(bookmarks_arr, headers=["Naam"])
 
-            #if type[0] is '.SQLITE3':
-             #   print bestand.path + bestand.name
-
-                '''if "cookies.sqlite" in bestand.name:
-        dbPath = bestand.name
-    
-        engine = create_engine('sqlite:///%s' % dbPath, echo=True)
-
-        metadata = MetaData(engine)
-        moz_bookmarks = Table('moz_bookmarks', metadata, autoload=True)
-        mapper(self.Bookmarks, moz_bookmarks)
-
-        Session = sessionmaker(bind=engine)
-        session = Session()
-        return session.query(self.Bookmarks).all()
-
-         for x in bestand.get_strings():
-            print str(x)'''
-
-    def bookmarks(self):
-        for bestand in self.hoofdmenu_refrentie.images[0].ewf_img_info.partities[0].files:
-            if "places.sqlite" in bestand.name:
-                dbPath = self.hoofdmenu_refrentie.images[0].ewf_img_info.partities[0].files[486]
-                engine = create_engine('sqlite:///%s' % dbPath, echo=True)
-
-                # Create a MetaData instance
-                metadata = MetaData()
-                print metadata.tables
-
-                # reflect db schema to MetaData
-                metadata.reflect(bind=engine)
-                print metadata.tables
+                # path.remove()
 
     def history(self):
-        for bestand in self.hoofdmenu_refrentie.images[0].ewf_img_info.partities[0].files:
-            if "places.sqlite" in bestand.name:
-                for x in bestand.get_strings():
-                    print str(x)
+        history_arr = []
+        paritie = self.select_partition()
+        for bestand in paritie.files:
+            type = FileType(bestand).analyse()
+
+            # Checken of bestand van type sqlite3 is
+            # if 'SQLITE3' in type[0]:
+            if 'places' in bestand.name:
+                # bestand.export_to()
+                path = 'places.sqlite'  # bestand.name
+                engine = create_engine('sqlite:///%s' % path, echo=False)
+                meta = MetaData(engine)
+                moz_history = Table('moz_places', meta, autoload=True)
+                mapper(self.History, moz_history)
+
+                Session = sessionmaker(bind=engine)
+                session = Session()
+
+                history = session.query(self.History).all()
+                print 'Gevonden bezochte pagina\'s zijn: '
+                for pagina in history:
+                    history_arr.append([pagina.title, pagina.url])
+                print tabulate(history_arr, headers=["Naam", "URL"])
+
+    def downloads(self):
+        downloads_arr = []
+        paritie = self.select_partition()
+        for bestand in paritie.files:
+            type = FileType(bestand).analyse()
+
+            # Checken of bestand van type sqlite3 is
+            # if 'SQLITE3' in type[0]:
+            if 'downloads' in bestand.name:
+                # bestand.export_to()
+                path = 'downloads.sqlite'  # bestand.name
+                engine = create_engine('sqlite:///%s' % path, echo=False)
+                meta = MetaData(engine)
+                moz_cookies = Table('moz_cookies', meta, autoload=True)
+                mapper(self.Cookie, moz_cookies)
+
+                Session = sessionmaker(bind=engine)
+                session = Session()
+                downloads = session.query(self.Cookie).all()
+                print 'Gevonden cookie\'s zijn: '
+                for downloads in downloads:
+                    downloads_arr.append([download.name, download.source])
+                print tabulate(downloads_arr, headers=["Naam", "Afkomst"])
 
     def run(self):
         print 'Hallo Wereld, dit is de Browsermodule!'
@@ -177,3 +236,38 @@ class Browser():
         self.hoofdmenu_refrentie.images[0].ewf_img_info.partition_report()
         input = int(raw_input('Please choose an parition to generate hashlist for [0-9]: '))
         self.hoofdmenu_refrentie.images[0].ewf_img_info.get_partitions()[input].files_rapport()'''
+
+        # dbPath = self.hoofdmenu_refrentie.images[0].ewf_img_info.partities[0].files[486]
+        # engine = create_engine('sqlite:///%s' % dbPath, echo=True)
+
+        '''# Create a MetaData instance
+        metadata = MetaData()
+        print metadata.tables
+
+        # reflect db schema to MetaData
+        metadata.reflect(bind=engine)
+        print metadata.tables'''
+
+        '''def tel_files(self):
+            for file in range(len(self.hoofdmenu_refrentie.images[0].ewf_img_info.partities[0].files)):
+                try:
+                    print '\t[' + str(file) + '] ' + \
+                          self.hoofdmenu_refrentie.images[0].ewf_img_info.get_partitions()[0].files[file].name
+                except:
+                    pass'''
+
+        '''if "cookies.sqlite" in bestand.name:
+        dbPath = bestand.name
+
+        engine = create_engine('sqlite:///%s' % dbPath, echo=True)
+
+        metadata = MetaData(engine)
+        moz_bookmarks = Table('moz_bookmarks', metadata, autoload=True)
+        mapper(self.Bookmarks, moz_bookmarks)
+
+        Session = sessionmaker(bind=engine)
+        session = Session()
+        return session.query(self.Bookmarks).all()
+
+         for x in bestand.get_strings():
+            print str(x)'''

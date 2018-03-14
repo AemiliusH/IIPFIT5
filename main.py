@@ -27,7 +27,8 @@ class Hoofdmenu():
     def __init__(self):
         self.images.append(Image('C:\\Users\\0x000000\\Documents\\LCB\\USBKOPIEroze16GB.E01'))
         self.images.append(Image('C:\\Users\\0x000000\\Documents\\School\\Hogeschool Leiden\\Jaar 2\\IPFIT5\\Images\\sample_image_01.E01'))
-  
+        #self.images.append(Image('D:\Test_image_5.E01'))
+
         self.bestand = Bestand(self)
         self.browser = Browser(self)
         self.foto = Foto(self)
