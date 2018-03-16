@@ -139,7 +139,7 @@ class Browser():
                     cookies_arr.append([cookie.id, cookie.name, cookie.host])
                 print tabulate(cookies_arr, headers=["ID","Naam", "Host"])
                 clear_mappers()
-                os.remove(path)
+                #os.remove(path)
 
             # if type[0] is '.SQLITE3':
             #   print bestand.path + bestand.name
