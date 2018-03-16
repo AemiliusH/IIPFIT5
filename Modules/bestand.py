@@ -5,28 +5,29 @@ import datetime
 import re
 
 from StringIO import StringIO
-from tabulate import tabulate 
+from tabulate import tabulate
 from zipfile import ZipFile
 
 from Utils.FileType import *
-from Utils.VirusToal import  *
+from Utils.VirusToal import *
+
 
 class Bestand():
-
     def __init__(self, main):
         self.main = main
-        self.sql = main.sql 
+        self.sql = main.sql
 
-    def generate_hashlist(self): 
-        #TODO: Selecteren van image 
-        self.main.images[0].ewf_img_info.partition_report()  
-        input = int(raw_input('Please choose an parition to generate hashlist for [0-9]: '))
-        self.main.images[0].ewf_img_info.get_partitions()[input].files_rapport()
-
+    def generate_hashlist(self):
+        # TODO: Selecteren van image
+        self.main.images[0].ewf_img_info.partition_report()
+        input = int(
+            raw_input('Please choose an parition to generate hashlist for [0-9]: '))
+        self.main.images[0].ewf_img_info.get_partitions()[
+            input].files_rapport()
 
     def generate_timeline(self):
         partitie = self.select_partition()
-      
+
         print 'Please select on what value to order:'
         print '\t[0] File Created'
         print '\t[1] File Modified'
@@ -36,34 +37,36 @@ class Bestand():
         print '\t[0] Oldest First'
         print '\t[1] Newest First'
         order = bool(int(raw_input('\nPlease choose an option[0-9]: ')))
-      
+
         print 'Generating List......'
         timeline = []
         files = partitie.files
-    
+
         for file in files:
             timeline.append((file.create, file.modify, file.change, file))
- 
-        timeline = sorted(timeline, key=lambda x:x[type], reverse=order)
-        
+
+        timeline = sorted(timeline, key=lambda x: x[type], reverse=order)
+
         array_list = []
         for file in timeline:
             array_list.append(file[3].get_attributes())
-        
+
         print '\t[0] Print Timeline'
         print '\t[1] Export Timeline (CSV)'
 
         result = int(raw_input('\nPlease choose an option[0-9]: '))
 
         if result == 0:
-            print tabulate(array_list, headers=['Name', 'Size', 'Created', 'Changed', 'Modified', 'MD5', 'SHA256'])
+            print tabulate(array_list, headers=[
+                           'Name', 'Size', 'Created', 'Changed', 'Modified', 'MD5', 'SHA256'])
         else:
-            self.save_array_to_csv(array_list, 'Name;Size;Created;Changed;Modified;MD5;SHA256\n')
-                
+            self.save_array_to_csv(
+                array_list, 'Name;Size;Created;Changed;Modified;MD5;SHA256\n')
+
     def save_array_to_csv(self, array, head):
         filename = raw_input('\nEnter Filename: ')
         file = open(filename + '.csv', 'w')
-        file.write(head + '\n')       
+        file.write(head + '\n')
         for obj in array:
             file.write(';'.join(str(e) for e in obj) + '\n')
 
@@ -76,8 +79,10 @@ class Bestand():
         print 'Please select an Partition: '
         # Printing all Partitions from Selected Image
         for part in range(len(self.main.images[image].ewf_img_info.get_partitions())):
-            partition_pointer = self.main.images[image].ewf_img_info.get_partitions()[part]
-            print '\t[' + str(part) + '] ' + partition_pointer.desc + " - " + str(partition_pointer.size / 1024) + "MB"
+            partition_pointer = self.main.images[image].ewf_img_info.get_partitions()[
+                part]
+            print '\t[' + str(part) + '] ' + partition_pointer.desc + \
+                " - " + str(partition_pointer.size / 1024) + "MB"
 
         part = int(raw_input('\nPlease Choose an option [0-9]: '))
         return self.main.images[image].ewf_img_info.get_partitions()[part]
@@ -95,16 +100,16 @@ class Bestand():
         return partitie.files[file]
 
     def detect_language(self):
-        #Getting object of selected file
+        # Getting object of selected file
         file_handle = self.select_file()
 
-        #Printing basic information
-        print  '==' * 30
+        # Printing basic information
+        print '==' * 30
         print 'Filename:\t' + file_handle.name
         print 'SHA1:\t\t' + str(file_handle.sha1())
         print 'SHA256:\t\t' + str(file_handle.sha256())
 
-        #Requested language from file
+        # Requested language from file
         file_handle.print_language_table()
         print '==' * 30
 
@@ -114,16 +119,17 @@ class Bestand():
 
         for a in range(len(partitie.files)):
             if partitie.files[a].get_extention()[0] is 'ZIP':
-                print '\t[' + str(len(ziplist)) + ']  \t' + partitie.files[a].name
+                print '\t[' + str(len(ziplist)) + ']  \t' + \
+                    partitie.files[a].name
                 ziplist.append(partitie.files[a])
-
 
         zip_id = int(raw_input("Please select an zipfile [0-9]"))
         file_handle = ziplist[zip_id]
         zip = ZipFile(StringIO(file_handle.read_raw_bytes()))
         zip_array = []
         for info in zip.infolist():
-            zip_array.append([info.filename, datetime.datetime(*info.date_time), info.file_size])
+            zip_array.append([info.filename, datetime.datetime(
+                *info.date_time), info.file_size])
 
         print '\t[0] Print Filetypes'
         print '\t[1] Export Filetypes (CSV)'
@@ -138,19 +144,21 @@ class Bestand():
         files = self.select_partition().files
         file_array = []
         for file in files:
-            type = FileType(file).analyse()  
+            type = FileType(file).analyse()
             if type[1] is not '':
                 type.append(file.name)
                 file_array.append(type)
 
         print '\t[0] Print Filetypes'
         print '\t[1] Export Filetypes (CSV)'
-        
+
         input = int(raw_input('\nPlease Choose an option [0-9]: '))
         if input == 0:
-            print tabulate(file_array, headers=['Extention', 'Description', 'Filename'])
+            print tabulate(file_array, headers=[
+                           'Extention', 'Description', 'Filename'])
         else:
-            self.save_array_to_csv(file_array, 'Extention;Description;FileName')
+            self.save_array_to_csv(
+                file_array, 'Extention;Description;FileName')
 
     def cli(self):
         while True:
@@ -170,14 +178,14 @@ class Bestand():
             print ''
 
             input = int(raw_input('Please choose an option [0-9]: '))
-            if input == 1: 
-                self.generate_hashlist() 
+            if input == 1:
+                self.generate_hashlist()
             if input == 2:
-                self.generate_ziplist() 
+                self.generate_ziplist()
             if input == 3:
-                self.generate_timeline() 
+                self.generate_timeline()
             if input == 4:
-                self.generate_filetypelist() 
+                self.generate_filetypelist()
             if input == 5:
                 self.detect_language()
             if input == 6:
@@ -197,5 +205,5 @@ class Bestand():
     def run(self):
         if len(self.main.images) == 0:
             print "Please import an image before using modules!"
-        else: 
+        else:
             self.cli()

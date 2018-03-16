@@ -8,7 +8,7 @@ class FileType:
     def __init__(self, file):
         self.file = file
         if '.' in self.file.name: 
-            self.extention = self.file.name.split('.')[-1] 
+            self.extention = self.file.name.split('.')[-1]  
 
     def analyse_header(self):
         head = self.file.head(20)
