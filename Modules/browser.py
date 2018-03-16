@@ -1,10 +1,11 @@
 import pyewf
 import pytsk3
 import sqlite3
+import os
 
 from Utils.FileType import *
 from sqlalchemy import create_engine, MetaData, Table
-from sqlalchemy.orm import mapper, sessionmaker
+from sqlalchemy.orm import mapper, sessionmaker, clear_mappers
 from sqlalchemy import Column, Integer
 from tabulate import tabulate
 
@@ -99,6 +100,8 @@ class Browser():
     class Cookie(object):
         pass
 
+
+
     def loadSession(self):
         """"""
         dbPath = 'places.sqlite'
@@ -133,10 +136,10 @@ class Browser():
                 cookies = session.query(self.Cookie).all()
                 print 'Gevonden cookie\'s zijn: '
                 for cookie in cookies:
-                    cookies_arr.append([cookie.name, cookie.host])
-                print tabulate(cookies_arr, headers=["Naam", "Host"])
-
-                # path.remove()
+                    cookies_arr.append([cookie.id, cookie.name, cookie.host])
+                print tabulate(cookies_arr, headers=["ID","Naam", "Host"])
+                clear_mappers()
+                os.remove(path)
 
             # if type[0] is '.SQLITE3':
             #   print bestand.path + bestand.name
@@ -163,9 +166,9 @@ class Browser():
                 bookmarks = session.query(self.Bookmarks).all()
                 print 'Gevonden Bookmarks\'s zijn: '
                 for bookmark in bookmarks:
-                    bookmarks_arr.append([bookmark.title])
-                print tabulate(bookmarks_arr, headers=["Naam"])
-
+                    bookmarks_arr.append([bookmark.id, bookmark.title])
+                print tabulate(bookmarks_arr, headers=["ID", "Naam"])
+                clear_mappers()
                 # path.remove()
 
     def history(self):
@@ -190,8 +193,9 @@ class Browser():
                 history = session.query(self.History).all()
                 print 'Gevonden bezochte pagina\'s zijn: '
                 for pagina in history:
-                    history_arr.append([pagina.title, pagina.url])
-                print tabulate(history_arr, headers=["Naam", "URL"])
+                    history_arr.append([pagina.id, pagina.title, pagina.url])
+                print tabulate(history_arr, headers=["ID", "Naam", "URL"])
+                clear_mappers()
 
     def downloads(self):
         downloads_arr = []
@@ -216,6 +220,7 @@ class Browser():
                 for downloads in downloads:
                     downloads_arr.append([download.name, download.source])
                 print tabulate(downloads_arr, headers=["Naam", "Afkomst"])
+                clear_mappers()
 
     def run(self):
         print 'Hallo Wereld, dit is de Browsermodule!'
