@@ -1,6 +1,7 @@
-import time 
-from datetime import * 
+import time
+from datetime import *
 from tabulate import tabulate
+
 
 class bcolors:
     HEADER = '\033[95m'
@@ -14,10 +15,11 @@ class bcolors:
 
 
 class DebugLog():
-    def __init__(self,tekst): 
+    def __init__(self, tekst):
         #timestamp = '{}-{}-{} {}:{}:{}'.format(date.year, date.month, date.day, time.hour, time.minute, time.second)
         print bcolors.WARNING + "[_] " + str(tekst) + bcolors.ENDC
 
+
 class ReportLog():
-    def __init__(self, tekst): 
+    def __init__(self, tekst):
         print "[Rapportage]  " + str(tekst)
