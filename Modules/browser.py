@@ -52,7 +52,9 @@ class Browser():
             print "\t[2] Bookmarks"
             print "\t[3] History"
             print "\t[4] Downloads"
-            print "\t[5] Back"
+            print "\t[5] Chrome Login"
+            print "\t[6] Chrome History"
+            print "\t[7] Back"
 
             input = int(raw_input('Please choose an option [0-9]: '))
             if input == 1:
@@ -64,6 +66,10 @@ class Browser():
             if input == 4:
                 self.downloads()
             if input == 5:
+                self.chrome_login()
+            if input == 6:
+                self.chrome_history()
+            if input == 7:
                 break
 
     def identify_browser_windows(self):
@@ -217,10 +223,64 @@ class Browser():
                 session = Session()
                 downloads = session.query(self.Cookie).all()
                 print 'Gevonden cookie\'s zijn: '
-                for downloads in downloads:
+                for download in downloads:
                     downloads_arr.append([download.name, download.source])
                 print tabulate(downloads_arr, headers=["Naam", "Afkomst"])
                 clear_mappers()
+
+    def chrome_login(self):
+        chrome_arr = []
+        paritie = self.select_partition()
+        for bestand in paritie.files:
+            type = FileType(bestand).analyse()
+
+            # Checken of bestand van type sqlite3 is
+            # if 'SQLITE3' in type[0]:
+            if 'cookies' in bestand.name:
+                # bestand.export_to()
+                path = 'Login Data.sqlite'  # bestand.name
+                engine = create_engine('sqlite:///%s' % path, echo=False)
+                meta = MetaData(engine)
+                moz_cookies = Table('logins', meta, Column("origin_url", Integer, primary_key=True), autoload=True)
+                mapper(self.Cookie, moz_cookies)
+
+                Session = sessionmaker(bind=engine)
+                session = Session()
+                cookies = session.query(self.Cookie).all()
+                print 'Gevonden login\'s zijn: '
+                for cookie in cookies:
+                    #koenkie = self.hoofdmenu_refrentie.is_ascii(cookie)
+                    chrome_arr.append([cookie.origin_url, cookie.username_value, cookie.times_used])
+                print tabulate(chrome_arr, headers=["URL","Username","Hoe vaak gebruikt"])
+                clear_mappers()
+                # os.remove(path)
+
+    def chrome_history(self):
+        chrome_arr = []
+        paritie = self.select_partition()
+        for bestand in paritie.files:
+            type = FileType(bestand).analyse()
+
+            # Checken of bestand van type sqlite3 is
+            # if 'SQLITE3' in type[0]:
+            if 'cookies' in bestand.name:
+                # bestand.export_to()
+                path = 'History.sqlite'  # bestand.name
+                engine = create_engine('sqlite:///%s' % path, echo=False)
+                meta = MetaData(engine)
+                moz_cookies = Table('urls', meta, Column("id", Integer, primary_key=True), autoload=True)
+                mapper(self.Cookie, moz_cookies)
+
+                Session = sessionmaker(bind=engine)
+                session = Session()
+                cookies = session.query(self.Cookie).all()
+                print 'Gevonden login\'s zijn: '
+                for cookie in cookies:
+                    #koenkie = self.hoofdmenu_refrentie.is_ascii(cookie)
+                    chrome_arr.append([cookie.id, cookie.url, cookie.title, cookie.visit_count])
+                print tabulate(chrome_arr, headers=["ID", "URL", "Naam", "Hoe vaak bezocht"])
+                clear_mappers()
+                #os.remove(path)
 
     def run(self):
         print 'Hallo Wereld, dit is de Browsermodule!'
