@@ -3,6 +3,8 @@ import pytsk3
 import sqlite3
 import os
 
+import win32crypt
+
 from Utils.FileType import *
 from sqlalchemy import create_engine, MetaData, Table
 from sqlalchemy.orm import mapper, sessionmaker, clear_mappers
@@ -54,7 +56,9 @@ class Browser():
             print "\t[4] Downloads"
             print "\t[5] Chrome Login"
             print "\t[6] Chrome History"
-            print "\t[7] Back"
+            print "\t[7] Chrome Cookies"
+            print "\t[8] Chrome Top Sites"
+            print "\t[9] Back"
 
             input = int(raw_input('Please choose an option [0-9]: '))
             if input == 1:
@@ -70,6 +74,10 @@ class Browser():
             if input == 6:
                 self.chrome_history()
             if input == 7:
+                self.cookies_chrome()
+            if input == 8:
+                self.chrome_topsites()
+            if input == 9:
                 break
 
     def identify_browser_windows(self):
@@ -91,8 +99,11 @@ class Browser():
             if "microsoftedge.exe" in bestand.name:
                 browse_arr.append([bestand.name, bestand.sha256()])
 
+        print "De gevonden browsers zijn: "
         print tabulate(browse_arr, headers=['Naam', 'Sha256'])
         print ""
+
+
 
     def identify_browser_linux(self):
         print""
@@ -140,7 +151,7 @@ class Browser():
                 Session = sessionmaker(bind=engine)
                 session = Session()
                 cookies = session.query(self.Cookie).all()
-                print 'Gevonden cookie\'s zijn: '
+                print 'Gevonden cookie\'s in Mozilla Firefox zijn: '
                 for cookie in cookies:
                     cookies_arr.append([cookie.id, cookie.name, cookie.host])
                 print tabulate(cookies_arr, headers=["ID","Naam", "Host"])
@@ -149,6 +160,33 @@ class Browser():
 
             # if type[0] is '.SQLITE3':
             #   print bestand.path + bestand.name
+
+    def cookies_chrome(self):
+        cookies_arr = []
+        paritie = self.select_partition()
+        for bestand in paritie.files:
+            type = FileType(bestand).analyse()
+
+            # Checken of bestand van type sqlite3 is
+            # if 'SQLITE3' in type[0]:
+            if 'cookies' in bestand.name:
+                # bestand.export_to()
+                path = 'cookies_chrome.sqlite'  # bestand.name
+                engine = create_engine('sqlite:///%s' % path, echo=False)
+                meta = MetaData(engine)
+                moz_cookies = Table('cookies', meta, autoload=True)
+                mapper(self.Cookie, moz_cookies)
+
+                Session = sessionmaker(bind=engine)
+                session = Session()
+                cookies = session.query(self.Cookie).all()
+                print 'Gevonden cookie\'s in Google Chrome zijn: '
+                for cookie in cookies:
+                    pwd = win32crypt.CryptUnprotectData(cookie.encrypted_value)
+                    cookies_arr.append([cookie.host_key, cookie.name, str(pwd[1])])
+                print tabulate(cookies_arr, headers=["Host","Naam","Value"])
+                clear_mappers()
+
 
     def bookmarks(self):
         bookmarks_arr = []
@@ -170,7 +208,7 @@ class Browser():
                 session = Session()
 
                 bookmarks = session.query(self.Bookmarks).all()
-                print 'Gevonden Bookmarks\'s zijn: '
+                print 'Gevonden Bookmarks\'s in Mozilla Firefox zijn: '
                 for bookmark in bookmarks:
                     bookmarks_arr.append([bookmark.id, bookmark.title])
                 print tabulate(bookmarks_arr, headers=["ID", "Naam"])
@@ -197,7 +235,7 @@ class Browser():
                 session = Session()
 
                 history = session.query(self.History).all()
-                print 'Gevonden bezochte pagina\'s zijn: '
+                print 'Gevonden bezochte pagina\'s in Mozilla Firefox zijn: '
                 for pagina in history:
                     history_arr.append([pagina.id, pagina.title, pagina.url])
                 print tabulate(history_arr, headers=["ID", "Naam", "URL"])
@@ -222,7 +260,7 @@ class Browser():
                 Session = sessionmaker(bind=engine)
                 session = Session()
                 downloads = session.query(self.Cookie).all()
-                print 'Gevonden cookie\'s zijn: '
+                print 'Gevonden download\'s in Mozilla Firefox zijn: '
                 for download in downloads:
                     downloads_arr.append([download.name, download.source])
                 print tabulate(downloads_arr, headers=["Naam", "Afkomst"])
@@ -236,9 +274,9 @@ class Browser():
 
             # Checken of bestand van type sqlite3 is
             # if 'SQLITE3' in type[0]:
-            if 'cookies' in bestand.name:
-                # bestand.export_to()
-                path = 'Login Data.sqlite'  # bestand.name
+            if 'cookies' in bestand.name: #cookies = Login Data
+                #bestand.export_to()
+                path = 'Login Data.sqlite'  # "Database\\" + bestand.name
                 engine = create_engine('sqlite:///%s' % path, echo=False)
                 meta = MetaData(engine)
                 moz_cookies = Table('logins', meta, Column("origin_url", Integer, primary_key=True), autoload=True)
@@ -247,11 +285,12 @@ class Browser():
                 Session = sessionmaker(bind=engine)
                 session = Session()
                 cookies = session.query(self.Cookie).all()
-                print 'Gevonden login\'s zijn: '
+                print 'Gevonden login\'s in Google Chrome zijn: '
                 for cookie in cookies:
+                    pwd = win32crypt.CryptUnprotectData(cookie.password_value)
                     #koenkie = self.hoofdmenu_refrentie.is_ascii(cookie)
-                    chrome_arr.append([cookie.origin_url, cookie.username_value, cookie.times_used])
-                print tabulate(chrome_arr, headers=["URL","Username","Hoe vaak gebruikt"])
+                    chrome_arr.append([cookie.origin_url, cookie.username_value, cookie.times_used, str(pwd[1])])
+                print tabulate(chrome_arr, headers=["URL","Username","Hoe vaak gebruikt","Wachtwoord"])
                 clear_mappers()
                 # os.remove(path)
 
@@ -274,13 +313,41 @@ class Browser():
                 Session = sessionmaker(bind=engine)
                 session = Session()
                 cookies = session.query(self.Cookie).all()
-                print 'Gevonden login\'s zijn: '
+                print 'Gevonden bezochte pagina\'s in Google Chrome zijn: '
                 for cookie in cookies:
                     #koenkie = self.hoofdmenu_refrentie.is_ascii(cookie)
                     chrome_arr.append([cookie.id, cookie.url, cookie.title, cookie.visit_count])
                 print tabulate(chrome_arr, headers=["ID", "URL", "Naam", "Hoe vaak bezocht"])
                 clear_mappers()
                 #os.remove(path)
+
+    def chrome_topsites(self):
+        chrome_arr = []
+        paritie = self.select_partition()
+        for bestand in paritie.files:
+            type = FileType(bestand).analyse()
+
+            # Checken of bestand van type sqlite3 is
+            # if 'SQLITE3' in type[0]:
+            if 'cookies' in bestand.name:
+                # bestand.export_to()
+                path = 'Top Sites.sqlite'  # bestand.name
+                engine = create_engine('sqlite:///%s' % path, echo=False)
+                meta = MetaData(engine)
+                moz_history = Table('thumbnails', meta, autoload=True)
+                mapper(self.Cookie, moz_history)
+
+                Session = sessionmaker(bind=engine)
+                session = Session()
+                cookies = session.query(self.Cookie).all()
+                print 'Meest bezochte pagina\'s in Google Chrome zijn: '
+                for cookie in cookies:
+                    #koenkie = self.hoofdmenu_refrentie.is_ascii(cookie)
+                    chrome_arr.append([cookie.url, cookie.title, cookie.boring_score])
+                print tabulate(chrome_arr, headers=["URL", "TITLE", "Boring Score(in %)"])
+                clear_mappers()
+                #os.remove(path)
+
 
     def run(self):
         print 'Hallo Wereld, dit is de Browsermodule!'

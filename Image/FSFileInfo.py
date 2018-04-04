@@ -28,9 +28,15 @@ class FSFileInfo():
     def get_attributes(self):
         return [self.name, self.size, self.create, self.change, self.modify, self.md5(), self.sha256()]
 
-    def export(self,):
+    def export(self):
         raw_bytes = StringIO(self.object_handle.read_random(0, self.size))
         file = open(self.name, 'w')
+        raw_bytes.seek(0)
+        copyfileobj(raw_bytes, file)
+
+    def export_to(self):
+        raw_bytes = StringIO(self.object_handle.read_random(0, self.size))
+        file = open("DataBase\\" + self.name, 'w')
         raw_bytes.seek(0)
         copyfileobj(raw_bytes, file)
 
