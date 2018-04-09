@@ -3,7 +3,7 @@ from Image.Image import *
 from Modules.bestand import *
 from Modules.browser import *
 from Modules.foto import *
-from Web.Web import *
+#from Web.Web import *
 from Utils.FileType import *
 
 header = '''    ______                           _         ______            ____   _ __ 
@@ -42,9 +42,12 @@ class Hoofdmenu():
         self.browser = Browser(self)
         self.foto = Foto(self)
 
-        # Optioneel: Websocket
-        self.web = Socket(5002, 'Forensic Toolkit', self)
         self.cli()
+
+
+        # Optioneel: Websocket
+        #self.web = Socket(5002, 'Forensic Toolkit', self)
+
       #  self.web.run(False)
 
     def add_image(self, path):
