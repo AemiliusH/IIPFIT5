@@ -17,7 +17,6 @@ class Foto():
     def run(self):
         # dit menu blijft die herhalen omdat het altijd true is
         while True:
-            print 'Hallo Wereld, dit is de fotomodule! \nMaak je keuze:'
             print '\t[1] Lijst van alle bestanden met hash'
             print '\t[2] Lijst van alle foto\'s'
             print '\t[3] Lijst van alle camera\'s'
@@ -40,11 +39,35 @@ class Foto():
             if input == 0:
                 break
 
+     # Funcite om gebruiker een partitie te laten selecteren
+    def select_partition(self):
+        print 'Please select an image: '
+        # printen van iedere image, met path. Waarvan de ID overeenkomt met de array positie
+        for a in range(len(self.main.images)):
+            print '\t[' + str(a) + '] ' + self.main.images[a].image_path
+
+        # Gebruiker de image laten selecteren
+        image = int(raw_input('\nPlease Choose an option [0-9]: '))
+        print 'Please select an Partition: '
+        # Printen van alle partities van geselecteerde image
+        # Met informatie over de grootte van de paritie MB en de partitie ID
+        for part in range(len(self.main.images[image].ewf_img_info.get_partitions())):
+            partition_pointer = self.main.images[image].ewf_img_info.get_partitions()[
+                part]
+            print '\t[' + str(part) + '] ' + partition_pointer.desc + \
+                " - " + str(partition_pointer.size / 1024) + "MB"
+
+        # Gebruiker's input afhandelen
+        part = int(raw_input('\nPlease Choose an option [0-9]: '))
+
+        # returnen van partitie object
+        return self.main.images[image].ewf_img_info.get_partitions()[part]
+
     def get_fotos(self):
-        partities = self.main.images[0].ewf_img_info.get_partitions()
+        partities = self.select_partition()
         # maak een lege array aan en loop door de bestanden van de partities. Als uit de analyse voor een betreffend bestand komt dat de extentie een van de types is, dan voegt die het toe aan de files array.
         files = []
-        for bestand in partities[0].files:
+        for bestand in partities.files:
             info = FileType(bestand).analyse()
             types = ['ANI', 'BMP', 'CAL', 'FAX', 'GIF', 'IMG', 'JBG', 'JPE', 'JPEG', 'JPG', 'MAC',
                      'PBM', 'PCD', 'PCX', 'PCT', 'PGM', 'PNG', 'PPM', 'PSD', 'RAS', 'TGA', 'TIFF', 'WMF']
@@ -54,8 +77,8 @@ class Foto():
 
     def isfoto(self):
         # dit is precies hetzelfde als de get_fotos functie alleen print die de bestandsnamen in plaats dat die ze returnt
-        partities = self.main.images[0].ewf_img_info.get_partitions()
-        for bestand in partities[0].files:
+        partities = self.select_partition()
+        for bestand in partities.files:
             info = FileType(bestand).analyse()
             types = ['ANI', 'BMP', 'CAL', 'FAX', 'GIF', 'IMG', 'JBG', 'JPE', 'JPEG', 'JPG', 'MAC',
                      'PBM', 'PCD', 'PCX', 'PCT', 'PGM', 'PNG', 'PPM', 'PSD', 'RAS', 'TGA', 'TIFF', 'WMF']
