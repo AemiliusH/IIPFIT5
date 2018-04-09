@@ -17,13 +17,44 @@ class Bestand():
         self.main = main
         self.sql = main.sql
 
+    def generate_hashlist_api(self, image, partitie):
+        img = self.main.images[image]
+        par = img.ewf_img_info.get_partition(partitie)
+        arr = []
+        for file in par.files:
+            arr.append(file.get_attributes())
+        return arr
+
+    def generate_ziplist_api(self, image, partitie):
+        img = self.main.images[image]
+        par = img.ewf_img_info.get_partition(partitie)
+        arr = []
+
+        for a in range(len(par.files)):
+            if par.files[a].get_extention()[0] is 'ZIP':
+                file = par.files[a]
+                arr.append(file.get_attributes())
+        return arr
+
     def generate_hashlist(self):
-        # TODO: Selecteren van image
-        self.main.images[0].ewf_img_info.partition_report()
-        input = int(
-            raw_input('Please choose an parition to generate hashlist for [0-9]: '))
-        self.main.images[0].ewf_img_info.get_partitions()[
-            input].files_rapport()
+        partitie = self.select_partition()
+
+        files = partitie.files
+        array_list = []
+        for file in files:
+            array_list.append(file.get_attributes())
+
+        print '\t[0] Print List'
+        print '\t[1] Export List (CSV)'
+
+        result = int(raw_input('\nPlease choose an option[0-9]: '))
+
+        if result == 0:
+            print tabulate(array_list, headers=[
+                           'Name', 'Size', 'Created', 'Changed', 'Modified', 'MD5', 'SHA256'])
+        else:
+            self.save_array_to_csv(
+                array_list, 'Name;Size;Created;Changed;Modified;MD5;SHA256\n')
 
     def generate_timeline(self):
         partitie = self.select_partition()
@@ -139,6 +170,8 @@ class Bestand():
             print tabulate(zip_array, headers=['Filename', 'Created', 'Size'])
         else:
             self.save_array_to_csv(zip_array, 'Filename;Created;Size')
+
+        zip.close()
 
     def generate_filetypelist(self):
         files = self.select_partition().files
