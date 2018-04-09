@@ -13,52 +13,42 @@ from Utils.VirusToal import *
 
 
 class Bestand():
+
     def __init__(self, main):
+        # Referentie naar hoofdmenu opslaan
         self.main = main
-        self.sql = main.sql
-
-    def generate_hashlist_api(self, image, partitie):
-        img = self.main.images[image]
-        par = img.ewf_img_info.get_partition(partitie)
-        arr = []
-        for file in par.files:
-            arr.append(file.get_attributes())
-        return arr
-
-    def generate_ziplist_api(self, image, partitie):
-        img = self.main.images[image]
-        par = img.ewf_img_info.get_partition(partitie)
-        arr = []
-
-        for a in range(len(par.files)):
-            if par.files[a].get_extention()[0] is 'ZIP':
-                file = par.files[a]
-                arr.append(file.get_attributes())
-        return arr
 
     def generate_hashlist(self):
+        # Gebruiker een partitie uit een image laten selecteren
         partitie = self.select_partition()
-
+        # Array van bestanden opslaan
         files = partitie.files
+        # Nieuwe array maken om metadata per file op te lsaan
         array_list = []
+        # Voor iedere file meta-data opslaan naar array_list
         for file in files:
             array_list.append(file.get_attributes())
 
         print '\t[0] Print List'
         print '\t[1] Export List (CSV)'
 
+        # Input van gebruiker lezen
         result = int(raw_input('\nPlease choose an option[0-9]: '))
 
         if result == 0:
+            # Printen van mooie tabel
             print tabulate(array_list, headers=[
                            'Name', 'Size', 'Created', 'Changed', 'Modified', 'MD5', 'SHA256'])
         else:
+            # Wegschrijven van data naar .csv file
             self.save_array_to_csv(
                 array_list, 'Name;Size;Created;Changed;Modified;MD5;SHA256\n')
 
     def generate_timeline(self):
+        # Gebruiker een partitie uit image laten selecteren
         partitie = self.select_partition()
 
+        # Gebruikers input uitlezen
         print 'Please select on what value to order:'
         print '\t[0] File Created'
         print '\t[1] File Modified'
@@ -70,55 +60,75 @@ class Bestand():
         order = bool(int(raw_input('\nPlease choose an option[0-9]: ')))
 
         print 'Generating List......'
+        # Array voor files met meta-data
         timeline = []
+        # referentie naar file array opslaan
         files = partitie.files
 
         for file in files:
             timeline.append((file.create, file.modify, file.change, file))
 
+        # timelijn sorteren op type (created/modified/changed) in juiste volgorde (nieuwste eerst/laatste eerst)
         timeline = sorted(timeline, key=lambda x: x[type], reverse=order)
 
+        # Voor alle files in juiste volgorde de attributes opslaan
         array_list = []
         for file in timeline:
             array_list.append(file[3].get_attributes())
 
         print '\t[0] Print Timeline'
         print '\t[1] Export Timeline (CSV)'
-
+        # Gebruikersinput afhandelen
         result = int(raw_input('\nPlease choose an option[0-9]: '))
 
         if result == 0:
+            # Mooie tabel printen
             print tabulate(array_list, headers=[
                            'Name', 'Size', 'Created', 'Changed', 'Modified', 'MD5', 'SHA256'])
         else:
+            # Data wegschrijven naar csv
             self.save_array_to_csv(
                 array_list, 'Name;Size;Created;Changed;Modified;MD5;SHA256\n')
 
+    # Functie om dubbele array weg te schrijven naar CSV
     def save_array_to_csv(self, array, head):
+        # Bestandsnaam vragen aan gebruiker
         filename = raw_input('\nEnter Filename: ')
+        # Referentie naar bestand openen (bestandsnaam + .csv)
         file = open(filename + '.csv', 'w')
+        # Wegschrijven 'header', dit is de eerste regel met column informatie
         file.write(head + '\n')
+        # Voor ieder object in de array, de subonderdelen wegschrijven als .csv door ; te gebruiken
         for obj in array:
             file.write(';'.join(str(e) for e in obj) + '\n')
 
+    # Funcite om gebruiker een partitie te laten selecteren
     def select_partition(self):
         print 'Please select an image: '
-        # Printing all images with their path
+        # printen van iedere image, met path. Waarvan de ID overeenkomt met de array positie
         for a in range(len(self.main.images)):
             print '\t[' + str(a) + '] ' + self.main.images[a].image_path
+
+        # Gebruiker de image laten selecteren
         image = int(raw_input('\nPlease Choose an option [0-9]: '))
         print 'Please select an Partition: '
-        # Printing all Partitions from Selected Image
+        # Printen van alle partities van geselecteerde image
+        # Met informatie over de grootte van de paritie MB en de partitie ID
         for part in range(len(self.main.images[image].ewf_img_info.get_partitions())):
             partition_pointer = self.main.images[image].ewf_img_info.get_partitions()[
                 part]
             print '\t[' + str(part) + '] ' + partition_pointer.desc + \
                 " - " + str(partition_pointer.size / 1024) + "MB"
 
+        # Gebruiker's input afhandelen
         part = int(raw_input('\nPlease Choose an option [0-9]: '))
+
+        # returnen van partitie object
         return self.main.images[image].ewf_img_info.get_partitions()[part]
 
+    # Functie om gebruiker een file te laten selecteren
     def select_file(self):
+        # Gebruiker een partiie laten selecteren
         partitie = self.select_partition()
         # Printing all files with ID
         for file in range(len(partitie.files)):
@@ -145,19 +155,26 @@ class Bestand():
         print '==' * 30
 
     def generate_ziplist(self):
+        # gebruiker een partiie laten selecteren
         partitie = self.select_partition()
         ziplist = []
 
+        # Lijst met zipfiles genereren
         for a in range(len(partitie.files)):
             if partitie.files[a].get_extention()[0] is 'ZIP':
                 print '\t[' + str(len(ziplist)) + ']  \t' + \
                     partitie.files[a].name
                 ziplist.append(partitie.files[a])
 
+        # Gebruiker de zipfile laten selecteren
         zip_id = int(raw_input("Please select an zipfile [0-9]"))
         file_handle = ziplist[zip_id]
+
+        # Geselecteerde zipfile openen als virtueel bestand met StringIO
         zip = ZipFile(StringIO(file_handle.read_raw_bytes()))
         zip_array = []
+        # Infolist ophalen van zipfile
+        # Bestanden opslaan in zip_array om deze informatie te kunnen verwerken
         for info in zip.infolist():
             zip_array.append([info.filename, datetime.datetime(
                 *info.date_time), info.file_size])
@@ -165,17 +182,25 @@ class Bestand():
         print '\t[0] Print Filetypes'
         print '\t[1] Export Filetypes (CSV)'
 
+        # Gebruikersinput ophalen
         input = int(raw_input('\nPlease Choose an option [0-9]: '))
         if input == 0:
+            # Mooie tabel printen
             print tabulate(zip_array, headers=['Filename', 'Created', 'Size'])
         else:
+            # Data wegschrijven naar .csv
             self.save_array_to_csv(zip_array, 'Filename;Created;Size')
 
         zip.close()
 
     def generate_filetypelist(self):
+        # alle files ophalen uit geselecteerde partitie
         files = self.select_partition().files
         file_array = []
+        unknown_file_array[]
+        # Iedere file analyseren
+        # Alle bekende files wegschrijven naar file_array
+        # Wanneeer deze onbekend is de file name gebruiken als extentie
         for file in files:
             type = FileType(file).analyse()
             if type[1] is not '':
@@ -185,14 +210,18 @@ class Bestand():
         print '\t[0] Print Filetypes'
         print '\t[1] Export Filetypes (CSV)'
 
+        # Gebruikers input opnemen
         input = int(raw_input('\nPlease Choose an option [0-9]: '))
         if input == 0:
+            # Printen mooie tabel
             print tabulate(file_array, headers=[
                            'Extention', 'Description', 'Filename'])
         else:
+            # data wegschrijven naar .csv
             self.save_array_to_csv(
                 file_array, 'Extention;Description;FileName')
 
+    # CommandLineInterface Vanuit hier wordt de module aangestuurd
     def cli(self):
         while True:
             print ''
@@ -210,7 +239,9 @@ class Bestand():
             print '\t[8] Back'
             print ''
 
+            # Gebruikersinput uitlezen
             input = int(raw_input('Please choose an option [0-9]: '))
+            # Aanroepen juiste functie
             if input == 1:
                 self.generate_hashlist()
             if input == 2:
@@ -228,15 +259,42 @@ class Bestand():
             if input == 8:
                 break
 
+    # Bestand door virustotal halen
     def virustotal_file(self):
+        # Gebruiker een bestand laten selecteren
         file = self.select_file()
+        # Virustotal class gebruiken
         total = VirusTotal(file).lookup_hash()
 
+    # Geselecteerd bestand exporteren
     def export_file(self):
         self.select_file().export()
 
+    # Starten van Bestand's module
     def run(self):
+        # Wanneer er geen bruikbare images zijn terugkeren naar hoofdmenu
         if len(self.main.images) == 0:
             print "Please import an image before using modules!"
         else:
+            # Command Line Interface starten
             self.cli()
+
+    # Ongeimplementeerde API Funcites voor webinterface
+    def generate_hashlist_api(self, image, partitie):
+        img = self.main.images[image]
+        par = img.ewf_img_info.get_partition(partitie)
+        arr = []
+        for file in par.files:
+            arr.append(file.get_attributes())
+        return arr
+
+    def generate_ziplist_api(self, image, partitie):
+        img = self.main.images[image]
+        par = img.ewf_img_info.get_partition(partitie)
+        arr = []
+
+        for a in range(len(par.files)):
+            if par.files[a].get_extention()[0] is 'ZIP':
+                file = par.files[a]
+                arr.append(file.get_attributes())
+        return arr

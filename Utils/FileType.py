@@ -2,41 +2,53 @@ import binascii
 
 from Image import * 
 
+# Module voor het achterhalen van de gebruikte filetype
 class FileType:
     extention = ''
 
     def __init__(self, file):
+        # Opslaan belangrijke parameters
         self.file = file
+        # extentie achter . zoeken in file
         if '.' in self.file.name: 
             self.extention = self.file.name.split('.')[-1]  
 
     def analyse_header(self):
+        # Uitlezen eerste 20 bytes van file
         head = self.file.head(20)
         resultset = []
+        # Loopen door alle bekende signatures
         for signature in self.signatures:
+            # omzetten signature naar python hex
             sig_head = binascii.unhexlify(signature['hex'])
+            # vergelijken hex van signature en file header 
             if sig_head == head[:len(sig_head)]:
+                # Wanneer resultaat is gevonden, toevoegen aan resultaat
                 resultset.append(signature) 
         return resultset
 
     def analyse(self):
+        # Alle bekende headers ophalen
         signatures = self.analyse_header() 
 
-        #Compaire signature with extention in filename
-        #return on match
+        # Vergelijken van resultaten met extentie van file
+        # Wanneer er meerdere signatures zijn met verschillende extenties
+        # De juiste extentie selecteren bij dit bestand
         for signature in signatures: 
             if signature['ext'].lower() == self.extention.lower():
                 return [signature['ext'], signature['format']]
 
-        #Selecting first signature if there is any present
+        # Eerste signature gebruiken wanneer er maar één beschikbaar is
         if len(signatures) > 0:
             return [signatures[0]['ext'], signatures[0]['format']]
 
-        #Unknown signature, only returning extention from filename
+        # Wanneer er geen signature bekend is, alle data achter de . returnen
         return [self.extention, '']
          
         
-         
+    # Lijst met signatures van https://github.com/micahflee/johnhancock/blob/master/johnhancock.py
+    # Aangevuld voor het compleet maken van de individuele opdrachten
+    
     signatures = [
     {'hex':'4D5A', 'ext':'EXE', 'format':'DOS executable file'},
         # {'hex':'', 'ext':'', 'format':''},

@@ -40,6 +40,7 @@ class EWFImgInfo(pytsk3.Img_Info):
     def get_partitions(self):
         partitions = []
         for part in self.partities:
+            # Controleren of image path het zelfde is als huidige image (om foutieve resultaten uit te sluiten)
             if part.image.image_path is self.image.image_path:
                 partitions.append(part)
         return partitions
