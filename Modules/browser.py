@@ -17,7 +17,8 @@ class Browser():
         for file in range(len(self.hoofdmenu_refrentie.images[0].ewf_img_info.partities[0].files)):
             try:
                 print '\t[' + str(file) + '] ' + \
-                      self.hoofdmenu_refrentie.images[0].ewf_img_info.get_partitions()[0].files[file].name
+                      self.hoofdmenu_refrentie.images[0].ewf_img_info.get_partitions()[
+                    0].files[file].name
             except:
                 pass
 
@@ -25,19 +26,23 @@ class Browser():
         print 'Please select an image: '
         # Printing all images with their path
         for a in range(len(self.hoofdmenu_refrentie.images)):
-            print '\t[' + str(a) + '] ' + self.hoofdmenu_refrentie.images[a].image_path
+            print '\t[' + str(a) + '] ' + \
+                self.hoofdmenu_refrentie.images[a].image_path
         image = int(raw_input('\nPlease Choose an option [0-9]: '))
         print 'Please select an Partition: '
         # Printing all Partitions from Selected Image
         for part in range(len(self.hoofdmenu_refrentie.images[image].ewf_img_info.get_partitions())):
-            partition_pointer = self.hoofdmenu_refrentie.images[image].ewf_img_info.get_partitions()[part]
-            print '\t[' + str(part) + '] ' + partition_pointer.desc + " - " + str(partition_pointer.size / 1024) + "MB"
+            partition_pointer = self.hoofdmenu_refrentie.images[image].ewf_img_info.get_partitions()[
+                part]
+            print '\t[' + str(part) + '] ' + partition_pointer.desc + \
+                " - " + str(partition_pointer.size / 1024) + "MB"
 
         part = int(raw_input('\nPlease Choose an option [0-9]: '))
         return self.hoofdmenu_refrentie.images[image].ewf_img_info.get_partitions()[part]
 
     def find_images(self):
-        self.hoofdmenu_refrentie.images[0].ewf_img_info.partities[0].files_rapport()
+        self.hoofdmenu_refrentie.images[0].ewf_img_info.partities[0].files_rapport(
+        )
 
     def cli(self):
         while True:
@@ -105,11 +110,12 @@ class Browser():
         for bestand in paritie.files:
             type = FileType(bestand).analyse()
 
-            #Checken of bestand van type sqlite3 is
-            #if 'SQLITE3' in type[0]:
-            if 'cookies' in bestand.name:
-                #bestand.export()
-                engine = create_engine('sqlite:///%s' % bestand.name, echo=True)
+            # Checken of bestand van type sqlite3 is
+            if 'SQLITE3' in type[0]:
+                # if 'cookies' in bestand.name:
+                # bestand.export()
+                engine = create_engine('sqlite:///%s' %
+                                       bestand.name, echo=True)
                 meta = MetaData(engine)
                 moz_bookmarks = Table('moz_cookies', meta, autoload=True)
                 mapper(self.Bookmarks, moz_bookmarks)
@@ -118,8 +124,7 @@ class Browser():
                 session = Session()
                 print session.query(self.Bookmarks).all()
 
-
-            #if type[0] is '.SQLITE3':
+            # if type[0] is '.SQLITE3':
              #   print bestand.path + bestand.name
 
                 '''if "cookies.sqlite" in bestand.name:

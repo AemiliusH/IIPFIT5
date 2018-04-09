@@ -17,7 +17,7 @@ class bcolors:
 class DebugLog():
     def __init__(self, tekst):
         #timestamp = '{}-{}-{} {}:{}:{}'.format(date.year, date.month, date.day, time.hour, time.minute, time.second)
-        print bcolors.WARNING + "[_] " + str(tekst) + bcolors.ENDC
+        print "[Debug] " + str(tekst)
 
 
 class ReportLog():
