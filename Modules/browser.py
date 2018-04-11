@@ -10,11 +10,15 @@ from sqlalchemy import create_engine, MetaData, Table
 from sqlalchemy.orm import mapper, sessionmaker, clear_mappers
 from sqlalchemy import Column, Integer
 from tabulate import tabulate
+from Utils.log import *
+from Utils.Models import *
 
 
 class Browser:
     def __init__(self, hoofdmenu):
         self.hoofdmenu_refrentie = hoofdmenu
+        self.browse_arr = []
+        self.browse_arr2 = []
 
     def generate_hashlist(self):
         # Gebruiker een partitie uit een image laten selecteren
@@ -51,73 +55,96 @@ class Browser:
         self.hoofdmenu_refrentie.images[0].ewf_img_info.partities[0].files_rapport()
 
     def cli(self):
-        while True:
-            print "\t[1] Identify Browsers"
-            print "\t[2] Attributes"
-            print "\t[3] Back"
+        uniq_browser = []
+        i = 1
+        self.identify_browser_windows()
+        browser = self.browse_arr2
 
-            input = int(raw_input('Please choose an option [0-9]: '))
-            if input == 1:
-                self.identify_browser_windows()
-            if input == 2:
-                self.attributes()
-            if input == 3:
-                break
+        for bestand in browser:
+            if "firefox.exe" not in uniq_browser:
+                print "\t[",i,"] Attributes Mozilla Firefox"
+                i = i + 1
+                uniq_browser.append("firefox.exe")
+            if "chrome.exe" not in uniq_browser:
+                print "\t[",i,"] Attributes Google Chrome"
+                i = i + 1
+                uniq_browser.append("chrome.exe")
 
-    def attributes(self):
-        while True:
-            print "\t[1] Cookies"
-            print "\t[2] Bookmarks"
-            print "\t[3] History"
-            print "\t[4] Downloads"
-            print "\t[5] Chrome Login"
-            print "\t[6] Chrome History"
-            print "\t[7] Chrome Cookies"
-            print "\t[8] Chrome Top Sites"
-            print "\t[9] Back"
+            input1 = int(raw_input('Please choose an option: '))
+            if input1 == 1:
+                print "\t[1] Cookies"
+                print "\t[2] Bookmarks"
+                print "\t[3] History"
+                print "\t[4] Downloads"
+                print "\t[0] Back"
 
-            input = int(raw_input('Please choose an option [0-9]: '))
-            if input == 1:
-                self.cookies()
-            if input == 2:
-                self.bookmarks()
-            if input == 3:
-                self.history()
-            if input == 4:
-                self.downloads()
-            if input == 5:
-                self.chrome_login()
-            if input == 6:
-                self.chrome_history()
-            if input == 7:
-                self.cookies_chrome()
-            if input == 8:
-                self.chrome_topsites()
-            if input == 9:
-                break
+                input2 = int(raw_input('Please choose an option: '))
+                if input2 == 1:
+                    self.cookies()
+                if input2 == 2:
+                    self.bookmarks()
+                if input2 == 3:
+                    self.history()
+                if input2 == 4:
+                    self.downloads()
+                if input2 == 0:
+                    break
+            if input1 == 2:
+                print "\t[1] Chrome Login"
+                print "\t[2] Chrome History"
+                print "\t[3] Chrome Cookies"
+                print "\t[4] Chrome Top Sites"
+                print "\t[0] Back"
+
+                input = int(raw_input('Please choose an option: '))
+
+                if input == 1:
+                    self.chrome_login()
+                if input == 2:
+                    self.chrome_history()
+                if input == 3:
+                    self.cookies_chrome()
+                if input == 4:
+                    self.chrome_topsites()
+                if input == 0:
+                    break
+
 
     def identify_browser_windows(self):
-        browse_arr = []
+        uniq_browser = []
+        browse_arr = self.browse_arr
         print (23 * "*")
         # self.hoofdmenu_refrentie.images[0].ewf_img_info.get_partitions[0].get_strings()
         partition = self.select_partition()
         for bestand in partition.files:
-            if "firefox.exe" in bestand.name:
-                browse_arr.append([bestand.name, bestand.sha256()])
-            if "opera.exe" in bestand.name:
-                browse_arr.append([bestand.name, bestand.sha256()])
-            if "chrome.exe" in bestand.name:
-                browse_arr.append([bestand.name, bestand.sha256()])
-            if "safari.exe" in bestand.name:
-                browse_arr.append([bestand.name, bestand.sha256()])
-            if "iexplore.exe" in bestand.name:
-                browse_arr.append([bestand.name, bestand.sha256()])
-            if "microsoftedge.exe" in bestand.name:
-                browse_arr.append([bestand.name, bestand.sha256()])
+            if bestand.name not in uniq_browser:
+
+                if "firefox.exe" in bestand.name:
+                    browse_arr.append([bestand.name, bestand.sha256()])
+                    uniq_browser.append(bestand.name)
+                if "opera.exe" in bestand.name:
+                    browse_arr.append([bestand.name, bestand.sha256()])
+                    uniq_browser.append("opera.exe")
+                if "chrome.exe" in bestand.name:
+                    browse_arr.append([bestand.name, bestand.sha256()])
+                    uniq_browser.append("chrome.exe")
+                if "safari.exe" in bestand.name:
+                    browse_arr.append([bestand.name, bestand.sha256()])
+                    uniq_browser.append("safari.exe")
+                if "iexplore.exe" in bestand.name:
+                    browse_arr.append([bestand.name, bestand.sha256()])
+                    uniq_browser.append("iexplore.exe")
+                if "microsoftedge.exe" in bestand.name:
+                    browse_arr.append([bestand.name, bestand.sha256()])
+                    uniq_browser.append("microsoftedge.exe")
 
         print "De gevonden browsers zijn: "
         print tabulate(browse_arr, headers=['Naam', 'Sha256'])
         print ""
+        if len(uniq_browser) > 0:
+            #uniq_browser = []
+            self.browse_arr2 = self.browse_arr
+            self.browse_arr = []
         self.hoofdmenu_refrentie.database.write_log("Heeft browsers geidentificeerd")
 
 
@@ -155,13 +182,17 @@ class Browser:
         cookies_arr = []
         paritie = self.select_partition()
         for bestand in paritie.files:
+            try:
+                bestand.name.decode()
+            except UnicodeDecodeError:
+                continue
             type = FileType(bestand).analyse()
 
             # Checken of bestand van type sqlite3 is
             # if 'SQLITE3' in type[0]:
-            if 'cookies' in bestand.name:
+            if 'cookies.sqlite' in bestand.name:
                 # bestand.export_to()
-                path = 'cookies.sqlite'  # bestand.name
+                path = bestand.name # bestand.name
                 engine = create_engine('sqlite:///%s' % path, echo=False)
                 meta = MetaData(engine)
                 moz_cookies = Table('moz_cookies', meta, autoload=True)
@@ -186,13 +217,17 @@ class Browser:
         cookies_arr = []
         paritie = self.select_partition()
         for bestand in paritie.files:
+            try:
+                bestand.name.decode()
+            except UnicodeDecodeError:
+                continue
             type = FileType(bestand).analyse()
 
             # Checken of bestand van type sqlite3 is
             # if 'SQLITE3' in type[0]:
-            if 'cookies' in bestand.name:
+            if 'cookies.sqlite' in bestand.name:
                 # bestand.export_to()
-                path = 'cookies_chrome.sqlite'  # bestand.name
+                path = bestand.name  # bestand.name
                 engine = create_engine('sqlite:///%s' % path, echo=False)
                 meta = MetaData(engine)
                 moz_cookies = Table('cookies', meta, autoload=True)
@@ -205,7 +240,7 @@ class Browser:
                 for cookie in cookies:
                     pwd = win32crypt.CryptUnprotectData(cookie.encrypted_value)
                     cookies_arr.append([cookie.host_key, cookie.name, str(pwd[1])])
-                print tabulate(cookies_arr, headers=["Host","Naam","Value"])
+                print tabulate(cookies_arr, headers=["Host", "Naam", "Value"])
                 clear_mappers()
 
 
@@ -215,13 +250,17 @@ class Browser:
         bookmarks_arr = []
         paritie = self.select_partition()
         for bestand in paritie.files:
+            try:
+                bestand.name.decode()
+            except UnicodeDecodeError:
+                continue
             type = FileType(bestand).analyse()
 
             # Checken of bestand van type sqlite3 is
             # if 'SQLITE3' in type[0]:
             if 'places' in bestand.name:
                 # bestand.export_to()
-                path = 'places.sqlite'  # bestand.name
+                path = bestand.name  # bestand.name
                 engine = create_engine('sqlite:///%s' % path, echo=False)
                 meta = MetaData(engine)
                 moz_bookmarks = Table('moz_bookmarks', meta, autoload=True)
@@ -244,13 +283,17 @@ class Browser:
         history_arr = []
         paritie = self.select_partition()
         for bestand in paritie.files:
+            try:
+                bestand.name.decode()
+            except UnicodeDecodeError:
+                continue
             type = FileType(bestand).analyse()
 
             # Checken of bestand van type sqlite3 is
             # if 'SQLITE3' in type[0]:
-            if 'places' in bestand.name:
+            if 'places.sqlite' in bestand.name:
                 # bestand.export_to()
-                path = 'places.sqlite'  # bestand.name
+                path = bestand.name  # bestand.name
                 engine = create_engine('sqlite:///%s' % path, echo=False)
                 meta = MetaData(engine)
                 moz_history = Table('moz_places', meta, autoload=True)
@@ -268,20 +311,25 @@ class Browser:
 
 
     def downloads(self):
-        self.hoofdmenu_refrentie.database.write_log("Heeft Mozilla Firefox Downloads gezocht")
+        #self.hoofdmenu_refrentie.database.write_log("Heeft Mozilla Firefox Downloads gezocht")
+        Logger("Heeft Mozilla Firefox Downloads gezocht")
         downloads_arr = []
         paritie = self.select_partition()
         for bestand in paritie.files:
+            try:
+                bestand.name.decode()
+            except UnicodeDecodeError:
+                continue
             type = FileType(bestand).analyse()
 
             # Checken of bestand van type sqlite3 is
             # if 'SQLITE3' in type[0]:
-            if 'downloads' in bestand.name:
+            if 'downloads.sqlite' in bestand.name:
                 # bestand.export_to()
-                path = 'downloads.sqlite'  # bestand.name
+                path = bestand.name # bestand.name
                 engine = create_engine('sqlite:///%s' % path, echo=False)
                 meta = MetaData(engine)
-                moz_cookies = Table('moz_cookies', meta, autoload=True)
+                moz_cookies = Table('moz_downloads', meta, autoload=True)
                 mapper(self.Cookie, moz_cookies)
 
                 Session = sessionmaker(bind=engine)
@@ -295,17 +343,22 @@ class Browser:
 
 
     def chrome_login(self):
-        self.hoofdmenu_refrentie.database.write_log("Heeft Chrome login data gezocht")
+        #self.hoofdmenu_refrentie.database.write_log("Heeft Chrome login data gezocht")
+        Logger("Heeft Chrome login data gezocht")
         chrome_arr = []
         paritie = self.select_partition()
         for bestand in paritie.files:
+            try:
+                bestand.name.decode()
+            except UnicodeDecodeError:
+                continue
             type = FileType(bestand).analyse()
 
             # Checken of bestand van type sqlite3 is
             # if 'SQLITE3' in type[0]:
-            if 'cookies' in bestand.name: #cookies = Login Data
+            if 'Login Data.sqlite' in bestand.name: #cookies = Login Data
                 #bestand.export_to()
-                path = 'Login Data.sqlite'  # "Database\\" + bestand.name
+                path = bestand.name  # "Database\\" + bestand.name
                 engine = create_engine('sqlite:///%s' % path, echo=False)
                 meta = MetaData(engine)
                 moz_cookies = Table('logins', meta, Column("origin_url", Integer, primary_key=True), autoload=True)
@@ -325,17 +378,22 @@ class Browser:
                 # os.remove(path)
 
     def chrome_history(self):
-        self.hoofdmenu_refrentie.database.write_log("Heeft Chrome History gezocht")
+        #self.hoofdmenu_refrentie.database.write_log("Heeft Chrome History gezocht")
+        Logger("Heeft Chrome History gezocht")
         chrome_arr = []
         paritie = self.select_partition()
         for bestand in paritie.files:
+            try:
+                bestand.name.decode()
+            except UnicodeDecodeError:
+                continue
             type = FileType(bestand).analyse()
 
             # Checken of bestand van type sqlite3 is
             # if 'SQLITE3' in type[0]:
-            if 'cookies' in bestand.name:
+            if 'History.sqlite' in bestand.name:
                 # bestand.export_to()
-                path = 'History.sqlite'  # bestand.name
+                path = bestand.name  # bestand.name
                 engine = create_engine('sqlite:///%s' % path, echo=False)
                 meta = MetaData(engine)
                 moz_cookies = Table('urls', meta, Column("id", Integer, primary_key=True), autoload=True)
@@ -358,13 +416,17 @@ class Browser:
         chrome_arr = []
         paritie = self.select_partition()
         for bestand in paritie.files:
+            try:
+                bestand.name.decode()
+            except UnicodeDecodeError:
+                continue
             type = FileType(bestand).analyse()
 
             # Checken of bestand van type sqlite3 is
             # if 'SQLITE3' in type[0]:
-            if 'cookies' in bestand.name:
+            if 'Top Sites.sqlite' in bestand.name:
                 # bestand.export_to()
-                path = 'Top Sites.sqlite'  # bestand.name
+                path = bestand.name  # bestand.name
                 engine = create_engine('sqlite:///%s' % path, echo=False)
                 meta = MetaData(engine)
                 moz_history = Table('thumbnails', meta, autoload=True)

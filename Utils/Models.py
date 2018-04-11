@@ -108,7 +108,7 @@ class Logboek(Base):
     ID = Column(Integer(), primary_key=True)
     UserID = Column(Integer(), ForeignKey('User.ID'))
     CaseID = Column(Integer(), ForeignKey('Case.ID'))
-    Handeling = Column(String(500))
+    Handeling = Column(String(50))
     Datum = Column(DateTime(timezone=True), server_default=func.now())
 
 
