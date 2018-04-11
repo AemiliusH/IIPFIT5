@@ -4,6 +4,7 @@ import pyewf
 from tabulate import tabulate
 from EWFImgInfo import *
 from FSFileInfo import *
+from Utils.log import *
 
 
 class FSParInfo():
@@ -32,15 +33,15 @@ class FSParInfo():
         self.files = []
 
         try:
-        # Fileformat uitlezen d.m.v. pytsk3
-        # Partitie wordt uitgelezen het begin
-        # de start offset van de partitie X de cluster grote van de image
+            # Fileformat uitlezen d.m.v. pytsk3
+            # Partitie wordt uitgelezen het begin
+            # de start offset van de partitie X de cluster grote van de image
             self.fs_handle = pytsk3.FS_Info(
                 self.image_info, offset=self.partition_handle.start * self.volume_info.info.block_size)
         except IOError:
-            print "Error: Kan FS Niet openen"
+            Logger("Unable to open Filesystem from " + self.desc)
 
-        DebugLog("Succesfully Mounted FileSystem!")
+        Logger("Succesfully Mounted FileSystem of " + self.desc)
 
         # Referentie naar hoofdmap opslaan
         self.root = self.fs_handle.open_dir(path="/")
@@ -48,7 +49,7 @@ class FSParInfo():
         self.recurse_files()
 
         # Printig some info..
-        DebugLog("{} Dirs and {} Files located".format(
+        Logger("{} Dirs and {} Files located".format(
             str(len(self.dirs)), str(len(self.files))))
 
     def get_root(self):
@@ -87,7 +88,7 @@ class FSParInfo():
                     # Bestand als FSFileInfo initaliseren, en opslaan naar file array
                     self.files.append(FSFileInfo(object, parent))
             except AttributeError:
-                DebugLog('Error parsing Object: ' + object.info.name.name)
+                Debugger('Error parsing Object: ' + object.info.name.name)
 
     def recurse_files(self):
         '''
@@ -113,7 +114,7 @@ class FSParInfo():
                     # Bestand als FSFileInfo initaliseren, en opslaan naar file array
                     self.files.append(FSFileInfo(object, parent))
             except AttributeError:
-                DebugLog('Error parsing Object: ' + object.info.name.name)
+                Debugger('Error parsing Object: ' + object.info.name.name)
 
     def files_rapport(self):
         '''

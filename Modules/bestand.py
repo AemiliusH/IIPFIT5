@@ -10,7 +10,7 @@ from zipfile import ZipFile
 
 from Utils.FileType import *
 from Utils.VirusToal import *
-
+ 
 
 class Bestand():
 

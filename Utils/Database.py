@@ -10,12 +10,15 @@ from datetime import datetime
 
 from Models import *
 
+
 class Database():
     userid = -1
     caseid = -1
+
     def __init__(self, hoofdmenu):
         self.hoofdmenu_refrentie = hoofdmenu
-        path = 'DataBase//DB.sqlite'  # path = '..//DataBase//DB.sqlite' voor testen vanuit deze class
+        # path = '..//DataBase//DB.sqlite' voor testen vanuit deze class
+        path = 'DataBase//DB.sqlite'
         engine = create_engine('sqlite:///%s' % path, echo=False)
         self.conn = engine.connect()
         self.meta = MetaData(bind=engine)
@@ -24,15 +27,15 @@ class Database():
         self.session = Session()
         self.pad = None
 
-
-
     def select_user(self):
-        #inladen userid voor later gebruik
+        # inladen userid voor later gebruik
         print "Selecteer een gebruiker: "
-        for name in self.session.query(User):
-            print name.ID, name.Naam, name.Achternaam, name.Datum
-        self.userid = raw_input("Kies een optie: ")
 
+        for name in self.session.query(User):
+            print '\t[' + str(name.ID) + \
+                '] ', name.Naam, name.Achternaam
+
+        self.userid = raw_input("Kies een optie: ")
 
     def add_user(self):
         voornaam = raw_input("Vul uw voornaam in: ")
@@ -43,38 +46,37 @@ class Database():
         self.session.add(user)
         self.session.commit()
 
-        self.write_log("Nieuwe gebruiker toegevoegd: " + voornaam + " " + achternaam)
-
+        self.write_log("Nieuwe gebruiker toegevoegd: " +
+                       voornaam + " " + achternaam)
 
     def select_case(self):
-        #TEST database kan niet een user geselecteerd hebben en tegelijk een nieuwe toevoegen.
+        # TEST database kan niet een user geselecteerd hebben en tegelijk een nieuwe toevoegen.
         # Lees image paden uit met ;
         # Leest case ID uit
 
         case = self.session.query(Case)
         for i in case:
-            print i.ID, i.Naam, i.Datum
+            print '[' + str(i.ID) + ']', i.Naam, i.Datum
         case_nr = int(raw_input("Kies een optie"))
         self.caseid = case_nr
         select_st = select([Case]).where(
             Case.ID == case_nr)
         selected_case = self.conn.execute(select_st)
         for row in selected_case:
-            print 'Inladen van ', row.Image
-            self.hoofdmenu_refrentie.add_image(row.Image)
-
+            images = row.Image.split(';')
+            for image in images:
+                if len(image) > 5:
+                    print '[DEUBGGG] ', image
+                    self.hoofdmenu_refrentie.add_image(image)
 
     def add_case(self):
-        image = str(raw_input("Voer het pad naar de image in"))
-        naam = str(raw_input("Voer de naam van de case in: "))
-
-
-        case = Case(Image=image, Naam=naam, Datum=datetime.now())
+        naam = str(raw_input("Case naam: "))
+        case = Case(Image='', Naam=naam, Datum=datetime.now())
 
         self.session.add(case)
         self.session.commit()
 
-        self.write_log("Heeft een nieuwe Case toegevoegd")
+        self.write_log("Case toegevoegd")
 
     def add_image(self):
         img = None
@@ -82,7 +84,6 @@ class Database():
         select_st = select([Case]).where(
             Case.ID == self.caseid)
         selected_case = self.conn.execute(select_st)
-
 
         # Eerst alle images uitlezen, vervolgens herschrijven
         print "De ingeladen Images zijn: "
@@ -94,7 +95,8 @@ class Database():
         self.hoofdmenu_refrentie.add_image(path)
 
         # werk met ;;;; om meerdere images toe te voegen
-        self.session.query(Case).filter_by(ID=self.caseid).update({"Image": img + ";" + path})
+        self.session.query(Case).filter_by(
+            ID=self.caseid).update({"Image": img + ";" + path})
         self.session.commit()
 
         # Stap loggen!!
@@ -102,15 +104,15 @@ class Database():
 
     def write_log(self, bericht):
         # Log wegschrijven met UserID en CaseID / Timestamp
-        log = Logboek(UserID=self.userid, CaseID=self.caseid, Handeling=bericht, Datum=datetime.now())
+        log = Logboek(UserID=self.userid, CaseID=self.caseid,
+                      Handeling=bericht, Datum=datetime.now())
 
         self.session.add(log)
         self.session.commit()
 
-
     def write_rapportage(self, titel, rapport):
-        #meerdere regels??
-        #Wegschrijven met USerid en CaseID
+        # meerdere regels??
+        # Wegschrijven met USerid en CaseID
         data = None
         select_st = select([Case]).where(
             Case.ID == self.caseid)
@@ -122,25 +124,24 @@ class Database():
             print row.Image
             data = row.Image
 
-        rapport = Logboek(UserID=self.userid, CaseID=self.caseid, Titel=titel, Data=rapport, Datum=datetime.now())
+        rapport = Logboek(UserID=self.userid, CaseID=self.caseid,
+                          Titel=titel, Data=rapport, Datum=datetime.now())
 
-        self.session.query(Rapportage).filter_by(ID=self.caseid).update({"Data": data + ";" + path})
+        self.session.query(Rapportage).filter_by(
+            ID=self.caseid).update({"Data": data + ";" + path})
         self.session.commit()
 
-    #def write_error(self, error):
+    # def write_error(self, error):
         # same met userid en caseid
 
-    #def write_export(self, naam, meta, doel, bron):
+    # def write_export(self, naam, meta, doel, bron):
         # wegschrijven met userid en caseid
-
-
-
 
     def user(self):
         while True:
             print "\t[1] Nieuwe User"
             print "\t[2] Bestaande User kiezen"
-            optie = int(raw_input("Kies een optie :"))
+            optie = int(raw_input("Kies een optie [1-2] "))
             if optie == 1:
                 self.add_user()
             if optie == 2:
@@ -152,7 +153,7 @@ class Database():
         while True:
             print "\t[1] Nieuwe Case"
             print "\t[2] Bestaande Case Kiezen"
-            optie = int(raw_input("Kies een optie [0-9]"))
+            optie = int(raw_input("Kies een optie [1-2] "))
             # date = DateTime()
 
             if optie == 1:
@@ -163,23 +164,3 @@ class Database():
 
     def run(self):
         self.user()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

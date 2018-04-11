@@ -1,6 +1,7 @@
-import time
 from datetime import *
 from tabulate import tabulate
+from Database import *
+from time import gmtime, strftime
 
 
 class bcolors:
@@ -14,12 +15,34 @@ class bcolors:
     UNDERLINE = '\033[4m'
 
 
-class DebugLog():
-    def __init__(self, tekst):
-        #timestamp = '{}-{}-{} {}:{}:{}'.format(date.year, date.month, date.day, time.hour, time.minute, time.second)
-        print "[Debug] " + str(tekst)
+class Logger():
+    def __init__(self, bericht, console=True):
+        db = Database(None)
+        db.write_log(bericht)
+        if console:
+            print self.timestamp(), bericht
+
+    def timestamp(self):
+        return str('[' + datetime.now().strftime('%Y-%m-%d %H:%M:%S') + ']')
 
 
-class ReportLog():
-    def __init__(self, tekst):
-        print "[Rapportage]  " + str(tekst)
+class Debugger():
+    def __init__(self, bericht, console=False):
+        db = Database(None)
+        db.write_log(str('Debug ' + bericht))
+        if console:
+            print str(self.timestamp() + Debug + bericht)
+
+    def timestamp(self):
+        return str('[' + datetime.now().strftime('%Y-%m-%d %H:%M:%S') + ']')
+
+
+class Reporter():
+    def __init__(self, title, bericht, console=True):
+        db = Database(None)
+        db.write_rapportage(title, bericht)
+        if console:
+            print str(self.timestamp() + '[' + title + ']' + bericht)
+
+    def timestamp(self):
+        return str('[' + strftime("%Y-%m-%d %H:%M:%S", gmtime()) + ']')

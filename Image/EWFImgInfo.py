@@ -4,6 +4,7 @@ import pyewf
 from FSParInfo import *
 from Utils.log import *
 
+
 class EWFImgInfo(pytsk3.Img_Info):
     # Partitie array initialiseren
     partities = []
@@ -25,7 +26,7 @@ class EWFImgInfo(pytsk3.Img_Info):
         # pytsk3 is globaal, en werkt voor alle ingeladen images. Om deze rede is de functie get_partitions() gemaakt
         # Deze kan onderscheid maken tussen de volumes van verschillende images
         self.volumes = pytsk3.Volume_Info(self)
-        DebugLog("Loading Partitions")
+        Logger("Loading Partitions of " + image.image_path)
 
         # Doorlopen van partitielijst en partities opslaan in geheugen
         for partition in self.volumes:

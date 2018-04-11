@@ -62,8 +62,7 @@ class FSFileInfo():
         raw_bytes.seek(0)
         # Verplaatsen van bytes naar bestands referentie
         copyfileobj(raw_bytes, file)
-        db = Database(self)
-        db.write_log("Heeft het bestand: " + self.name + " Geexporteerd")
+       
 
 
 

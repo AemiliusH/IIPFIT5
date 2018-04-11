@@ -31,12 +31,7 @@ class Hoofdmenu:
     images = []
 
     def __init__(self):
-        # Handmatig toevoegen van images d.m.v. path naar file
-        #self.images.append(
-            #Image('C:\\Users\\0x000000\\Documents\\LCB\\USBKOPIEroze16GB.E01'))
-        #self.images.append(Image(
-            #'C:\\Users\\0x000000\\Documents\\School\\Hogeschool Leiden\\Jaar 2\\IPFIT5\\Images\\sample_image_01.E01'))
-        #self.images.append(Image('D:\\Test_image_5.E01'))
+        print header
 
         # Initaliseren van individuele modules
         self.database = Database(self)
@@ -44,9 +39,9 @@ class Hoofdmenu:
         self.browser = Browser(self)
         self.foto = Foto(self)
 
-        #self.database.run()
+        # self.database.run()
+        self.database.run()
         self.cli()
-
 
         # Optioneel: Websocket
         #self.web = Socket(5002, 'Forensic Toolkit', self)
@@ -55,41 +50,36 @@ class Hoofdmenu:
 
     def add_image(self, path):
         # Toevoegen image aan hoofdmenu
-        splitted = path.split(';')
-        for i in splitted:
-            print i
-            self.images.append(Image(i))
-        #self.database.add_image()
+        self.images.append(Image(path))
 
     def cli(self):
-        self.database.run()
+        # self.database.run()
         # Commandline interface blijft beschikbaar door loop
         # Vanuit commandline kan worden aangegeven welke module moet worden gestart
+
         while True:
             # Printen van alle opties
             print ''
-            print '\t[0] Bestand'
-            print '\t[1] Browser'
-            print '\t[2] Foto'
-            print '\t[3] Add Image File (dd/E01)'
-            print '\t[4] Start WebAPI (Flask)'
+            print '\t[1] Bestand'
+            print '\t[2] Browser'
+            print '\t[3] Foto'
+            print '\t[4] Add Image File'
             print '\t[0] Exit'
 
             # Uitlezen gebruikersinput
             input = int(raw_input('Please choose an option [0-9]: '))
 
             # Input verwerken en aanroepen juiste functie
-            if input == 0:
-                self.bestand.run()
             if input == 1:
-                self.browser.run()
+                self.bestand.run()
             if input == 2:
-                self.foto.run()
+                self.browser.run()
             if input == 3:
+                self.foto.run()
+            if input == 4:
                 self.database.add_image()
-            #f input == 4:
-                #self.web.run(False)
             if input == 0:
+                Debugger('Exiting Program...', True)
                 exit(1)
 
     def print_header(self):
