@@ -329,7 +329,7 @@ class Bestand():
             print '\t[5] Find Used Languages'
             print '\t[6] Export File'
             print '\t[7] VirusTotal'
-            print '\t[8] Back'
+            print '\t[0] Back'
             print ''
 
             # Gebruikersinput uitlezen
@@ -350,7 +350,7 @@ class Bestand():
                 self.export_file()
             if input == 7:
                 self.virustotal_file()
-            if input == 8:
+            if input == 0:
                 break
 
     def virustotal_file(self):

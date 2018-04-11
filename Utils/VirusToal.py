@@ -47,6 +47,9 @@ class VirusTotal:
         json_response = response.json()
 
         # Aantal positieve resultaten tellen
+        if 'positives' not in json_response:
+            Logger('File has not been uploaded yet!')
+
         positives = int(json_response['positives'])
         total = int(json_response['total'])
         positives_results = []

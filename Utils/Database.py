@@ -33,7 +33,7 @@ class Database():
 
     def get_log(self):
         select_st = select([Logboek]).where(
-            Case.ID == self.caseid and User.ID == self.userid).order_by(desc(Logboek.ID)).limit(100)
+            Case.ID == self.caseid and User.ID == self.userid).order_by(desc(Logboek.ID))
         selected_case = self.conn.execute(select_st)
 
         #logger = self.session.query(Logboek)
