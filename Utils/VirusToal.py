@@ -1,7 +1,7 @@
 import requests
 
 from tabulate import tabulate
-
+from Utils.log import *
 # Virustotal Account
 '''
 hocuhunof@web2mailco.com
@@ -29,9 +29,11 @@ class VirusTotal:
         # Hash genereren van file
         sha256 = self.file_handle.sha256()
 
+        Debugger(
+            'Looking up SHA256 hash of file in virustotal database: ' + str(sha256))
         # API request voorbereiden
         params = {'apikey': self.api_key,
-                  'resource': 'fcc1bd24951b5dca31147bbc33d3566c23fb1a78a9afcbb62d0ae9e7695517ed'}
+                  'resource': sha256}
         headers = {
             "Accept-Encoding": "gzip, deflate",
             "User-Agent": "gzip"
@@ -49,6 +51,9 @@ class VirusTotal:
         total = int(json_response['total'])
         positives_results = []
 
+        Debugger('Positives: ' + str(positives))
+        Debugger('Total: ' + str(total))
+
         # Wanneer er positieve resultaten zijn, printen
         if positives > 0:
             print 'Found ' + str(positives) + '/' + \
@@ -60,9 +65,10 @@ class VirusTotal:
             # voor ieder object de details printen wanneer er een detectie is
             for key, value in objects.items():
                 if objects[key]['detected']:
+                    Debugger(str(key) + ' ' + str(objects[key]['result']))
                     positives_results.append([key, objects[key]['result']])
 
             # tabel printen
             print tabulate(positives_results, headers=['Antivirus', 'Result'])
         else:
-            print 'File is clean!'
+            Logger('File is clean!')

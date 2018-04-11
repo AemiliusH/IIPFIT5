@@ -52,8 +52,7 @@ class Bestand():
             Debugger('Printing hashlist')
             print tabulate(array_list, headers=[
                            'Name', 'Size', 'Created', 'Changed', 'Modified', 'MD5', 'SHA256'])
-            self.main.database.write_log(
-                "Heeft een lijst van hashes gegenereert op het scherm")
+
         else:
             # Wegschrijven van data naar .csv file
             Debugger('Storing Hashlist as CSV')
@@ -89,9 +88,12 @@ class Bestand():
         timeline = []
         # referentie naar file array opslaan
         files = partitie.files
-
+        hash_base = []
         for file in files:
-            timeline.append((file.create, file.modify, file.change, file))
+            hash = file.md5()
+            if hash not in hash_base:
+                timeline.append((file.create, file.modify, file.change, file))
+                hash_base.append(hash)
 
         # timelijn sorteren op type (created/modified/changed) in juiste volgorde (nieuwste eerst/laatste eerst)
         timeline = sorted(timeline, key=lambda x: x[type], reverse=order)
@@ -113,16 +115,14 @@ class Bestand():
             # Mooie tabel printen
             print tabulate(array_list, headers=[
                            'Name', 'Size', 'Created', 'Changed', 'Modified', 'MD5', 'SHA256'])
-            self.main.database.write_log(
-                "Heeft een TimeLine op het Scherm geprint")
+            Debugger("Printing timeline on console")
         else:
 
             Debugger('Storing timetable as CSV')
             # Data wegschrijven naar csv
             self.save_array_to_csv(
                 array_list, 'Name;Size;Created;Changed;Modified;MD5;SHA256\n')
-            self.main.database.write_log(
-                "Heeft een TimeLine weggeschreven naar CSV")
+            Debugger('Writing timeline to CSV')
 
     def save_array_to_csv(self, array, head):
         '''
@@ -135,7 +135,7 @@ class Bestand():
         filename = raw_input('\nEnter Filename: ')
 
         Debugger('Writing CSV data to: ' +
-                 str(os.path.dirname(os.path.abspath(__file__))) + filename + '.csv')
+                 str(os.path.dirname(os.path.abspath(__file__))) + ' - ' + filename + '.csv')
         # Referentie naar bestand openen (bestandsnaam + .csv)
         file = open(filename + '.csv', 'w')
         # Wegschrijven 'header', dit is de eerste regel met column informatie
@@ -267,8 +267,6 @@ class Bestand():
             Debugger('Writing ZIP list to CSV')
             # Data wegschrijven naar .csv
             self.save_array_to_csv(zip_array, 'Filename;Created;Size')
-            self.main.database.write_log(
-                "Heeft een lijst van Zips geexporteerd")
 
         zip.close()
 
@@ -304,16 +302,13 @@ class Bestand():
             # Printen mooie tabel
             print tabulate(file_array, headers=[
                            'Extention', 'Description', 'Filename'])
-            self.main.database.write_log(
-                "Heeft een lijst van Filetypes geprint op het scherm")
+
         else:
             Debugger('Storing results in .csv')
 
             # data wegschrijven naar .csv
             self.save_array_to_csv(
                 file_array, 'Extention;Description;FileName')
-            self.main.database.write_log(
-                "Heeft een lijst van Filetypes weggeschreven naar CSV")
 
     def cli(self):
         '''

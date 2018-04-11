@@ -24,6 +24,9 @@ class FileType:
         # Uitlezen eerste 20 bytes van file
         head = self.file.head(20)
         resultset = []
+
+        Debugger('Requested header of file: ' + str(head))
+        Debugger('Compairing Header to signatures')
         # Loopen door alle bekende signatures
         for signature in self.signatures:
             # omzetten signature naar python hex
@@ -47,13 +50,18 @@ class FileType:
         # De juiste extentie selecteren bij dit bestand
         for signature in signatures: 
             if signature['ext'].lower() == self.extention.lower():
+                Debugger('Extention: ' + str(signature['ext']))
+                Debugger('Format: ' + str(signature['format'])) 
                 return [signature['ext'], signature['format']]
 
         # Eerste signature gebruiken wanneer er maar een beschikbaar is
         if len(signatures) > 0:
+            Debugger('Extention: ' + str(signatures[0]['ext']))
+            Debugger('Format: ' + str(signatures[0]['format'])) 
             return [signatures[0]['ext'], signatures[0]['format']]
-
+        
         # Wanneer er geen signature bekend is, alle data achter de . returnen
+        Debugger('Did not found any matching signatures')
         return [self.extention, '']
          
         
