@@ -52,8 +52,8 @@ class FSParInfo():
         # Bestanden vanaf hoofdmap uitlezen (inclusief subfolders)
         self.recurse_files()
 
-        Debugger('Dirs: ' + str(self.dirs))
-        Debugger('Files: ' + str(self.files))
+        Debugger('Dirs: ' + str(len(self.dirs)))
+        Debugger('Files: ' + str(len(self.files)))
         # Printig some info..
         Logger("{} Dirs and {} Files located".format(
             str(len(self.dirs)), str(len(self.files))))

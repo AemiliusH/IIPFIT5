@@ -31,6 +31,11 @@ class Database():
         else:
             self.getSettings()
 
+    def show_log(self):
+        logger = self.session.query(Logboek)
+        for log in logger:
+            print str(log.ID) + '\t' + log.Handeling
+
     def setSettings(self):
         settings = open('settings.cfg', 'w+')
         settings.write(str(self.userid)+';'+str(self.caseid))
@@ -60,7 +65,8 @@ class Database():
         voornaam = raw_input("Vul uw voornaam in: ")
         achternaam = raw_input("Vul uw achternaam in: ")
 
-        user = User(Naam=voornaam, Achternaam=achternaam, Datum=datetime.now())
+        user = User(Naam=voornaam, Achternaam=achternaam,
+                    Datum=datetime.now())
 
         self.session.add(user)
         self.session.commit()

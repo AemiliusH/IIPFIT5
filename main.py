@@ -70,6 +70,7 @@ class Hoofdmenu:
             print '\t[2] Browser'
             print '\t[3] Foto'
             print '\t[4] Add Image File'
+            print '\t[5] Show Log'
             print '\t[0] Exit'
 
             Debugger('Main Menu')
@@ -85,6 +86,8 @@ class Hoofdmenu:
                 self.foto.run()
             if input == 4:
                 self.database.add_image()
+            if input == 5:
+                self.database.show_log()
             if input == 0:
                 Debugger('Exiting Program...', True)
                 exit(1)

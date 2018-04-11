@@ -19,6 +19,11 @@ class Logger():
     def __init__(self, bericht, console=True):
         db = Database(None)
         db.write_log(bericht)
+        if console:
+            print self.timestamp(), bericht
+
+    def timestamp(self):
+        return str('[' + datetime.now().strftime('%Y-%m-%d %H:%M:%S') + ']')
 
 
 class Debugger():

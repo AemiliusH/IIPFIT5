@@ -362,7 +362,7 @@ class Bestand():
         # Gebruiker een bestand laten selecteren
         file = self.select_file()
         # Virustotal class gebruiken
-        Debugger('Hash Opzoeken in virustotal')
+        Logger('Hash Opzoeken in virustotal')
         total = VirusTotal(file).lookup_hash()
 
     def export_file(self):
