@@ -35,7 +35,7 @@ class Image():
 
     def get_all_files(self):
         '''
-        Ophalen van alle bestanden uit image
+        Ophalen van alle bestanden uit image.
         :return: Arraylist met bestanden
         '''
         files = []

@@ -43,7 +43,7 @@ class EWFImgInfo(pytsk3.Img_Info):
     def get_partitions(self):
         '''
         Ophalen van alle partities in image
-        :return: Arraylist van partities
+        :return: Arraylist van partities.
         '''
         partitions = []
         for part in self.partities:
