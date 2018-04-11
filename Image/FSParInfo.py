@@ -32,9 +32,9 @@ class FSParInfo():
         self.files = []
 
         try:
-            # Fileformat uitlezen d.m.v. pytsk3
-            # Partitie wordt uitgelezen het begin
-            # de start offset van de partitie X de cluster grote van de image
+        # Fileformat uitlezen d.m.v. pytsk3
+        # Partitie wordt uitgelezen het begin
+        # de start offset van de partitie X de cluster grote van de image
             self.fs_handle = pytsk3.FS_Info(
                 self.image_info, offset=self.partition_handle.start * self.volume_info.info.block_size)
         except IOError:
@@ -51,14 +51,12 @@ class FSParInfo():
         DebugLog("{} Dirs and {} Files located".format(
             str(len(self.dirs)), str(len(self.files))))
 
-
     def get_root(self):
         '''
         Verkrijgt de hoofdmap van de partitie
         :return: None
         '''
         self.root = self.fs_handle.open_dir(path="/")
-
 
     def recurse_dir(self, dir, parent):
         '''
@@ -91,7 +89,6 @@ class FSParInfo():
             except AttributeError:
                 DebugLog('Error parsing Object: ' + object.info.name.name)
 
-
     def recurse_files(self):
         '''
         Eenmalige functie voor het uitlezen van alle files uit paritie
@@ -118,7 +115,6 @@ class FSParInfo():
             except AttributeError:
                 DebugLog('Error parsing Object: ' + object.info.name.name)
 
-
     def files_rapport(self):
         '''
         Functie voor het maken van een file tabel
@@ -134,4 +130,3 @@ class FSParInfo():
         # Printen van tabel
         print tabulate(attribute_array, headers=[
                        'Name', 'Size', 'Created', 'Changed', 'Modified', 'MD5', 'SHA256'])
-

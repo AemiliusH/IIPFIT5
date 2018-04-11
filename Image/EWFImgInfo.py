@@ -4,24 +4,27 @@ import pyewf
 from FSParInfo import *
 from Utils.log import *
 
-
 class EWFImgInfo(pytsk3.Img_Info):
     # Partitie array initialiseren
     partities = []
 
-    def __init__(self, ewf_handle, image):
+    def __init__(self, ewf_handle, image, raw=False):
+
         # Opslaan belangrijke variable
         self.image = image
         self.ewf_handle = ewf_handle
 
-        # Aanroepen van pytsk3.Img_info class, deze laad de image naar pytsk3
-        super(EWFImgInfo, self).__init__(
-            url="", type=pytsk3.TSK_IMG_TYPE_EXTERNAL)
+        if not raw:
+            # Aanroepen van pytsk3.Img_info class, deze laad de image naar pytsk3
+            super(EWFImgInfo, self).__init__(
+                url="", type=pytsk3.TSK_IMG_TYPE_EXTERNAL)
+        else:
+            super(EWFImgInfo, self).__init__(self.ewf_handle)
+
         # Opslaan van alle volumes
         # pytsk3 is globaal, en werkt voor alle ingeladen images. Om deze rede is de functie get_partitions() gemaakt
         # Deze kan onderscheid maken tussen de volumes van verschillende images
         self.volumes = pytsk3.Volume_Info(self)
-
         DebugLog("Loading Partitions")
 
         # Doorlopen van partitielijst en partities opslaan in geheugen

@@ -15,18 +15,23 @@ class Image():
         # Opslaan belangrijke parameter
         self.image_path = image_path
 
-        # Opening Image in pyEWF
-        self.image_files = pyewf.glob(self.image_path)
-        self.ewf_handle = pyewf.handle()
-        self.ewf_handle.open(self.image_files)
+        try:
+            # Opening Image in pyEWF
+            self.image_files = pyewf.glob(self.image_path)
+            self.ewf_handle = pyewf.handle()
+            self.ewf_handle.open(self.image_files)
 
-        # Aanmaken van EWFImage Class, deze combineert EWF met Pytsk3
-        self.ewf_img_info = EWFImgInfo(self.ewf_handle, self)
-
-        DebugLog("Image succesfully loaded!")
-
-        # self.ewf_img_info.partition_report()
-
+            # Aanmaken van EWFImage Class, deze combineert EWF met Pytsk3
+            self.ewf_img_info = EWFImgInfo(self.ewf_handle, self)
+            DebugLog("Image succesfully loaded!")
+        except IOError:
+            try:
+                print "Error opening image with EWF... Attempting raw mode"
+                self.ewf_img_info = EWFImgInfo(self.image_path, self, True)
+                DebugLog("Image succesfully loaded!")
+            except:
+                raise Exception(
+                    'Unable to open image as filesystem: Cannot determine file system type')
 
     def get_all_files(self):
         '''

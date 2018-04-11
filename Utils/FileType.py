@@ -49,7 +49,7 @@ class FileType:
             if signature['ext'].lower() == self.extention.lower():
                 return [signature['ext'], signature['format']]
 
-        # Eerste signature gebruiken wanneer er maar één beschikbaar is
+        # Eerste signature gebruiken wanneer er maar een beschikbaar is
         if len(signatures) > 0:
             return [signatures[0]['ext'], signatures[0]['format']]
 
