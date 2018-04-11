@@ -2,52 +2,58 @@ from sqlalchemy import create_engine
 
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy import create_engine, MetaData, Table, DateTime, select
+from sqlalchemy import create_engine, MetaData, Table, DateTime, select, update
 from sqlalchemy.orm import mapper, sessionmaker, clear_mappers
 from sqlalchemy import Column, Integer
 from tabulate import tabulate
+from datetime import datetime
 
 from Models import *
 
 class Database():
-    userid = 2
+    userid = -1
     caseid = -1
     def __init__(self, hoofdmenu):
         self.hoofdmenu_refrentie = hoofdmenu
         path = 'DataBase//DB.sqlite'  # path = '..//DataBase//DB.sqlite' voor testen vanuit deze class
         engine = create_engine('sqlite:///%s' % path, echo=False)
         self.conn = engine.connect()
+        self.meta = MetaData(bind=engine)
         Base.metadata.create_all(bind=engine)
         Session = sessionmaker(bind=engine)
         self.session = Session()
         self.pad = None
-        self.run()
+
+
 
     def select_user(self):
         #inladen userid voor later gebruik
-        print "Welke gebruiker wilt u kiezen?"
+        print "Selecteer een gebruiker: "
         for name in self.session.query(User):
-            print name.ID,name.Naam,name.Achternaam
-        self.userid = raw_input("Kies een optie")
+            print name.ID, name.Naam, name.Achternaam, name.Datum
+        self.userid = raw_input("Kies een optie: ")
 
 
-    def add_user(self, voornaam, achternaam):
+    def add_user(self):
         voornaam = raw_input("Vul uw voornaam in: ")
         achternaam = raw_input("Vul uw achternaam in: ")
 
-        user = User(Naam=voornaam, Achternaam=achternaam)
+        user = User(Naam=voornaam, Achternaam=achternaam, Datum=datetime.now())
 
         self.session.add(user)
         self.session.commit()
 
+        self.write_log("Nieuwe gebruiker toegevoegd: " + voornaam + " " + achternaam)
+
 
     def select_case(self):
+        #TEST database kan niet een user geselecteerd hebben en tegelijk een nieuwe toevoegen.
         # Lees image paden uit met ;
         # Leest case ID uit
 
         case = self.session.query(Case)
         for i in case:
-            print i.ID, i.Naam, i.Image
+            print i.ID, i.Naam, i.Datum
         case_nr = int(raw_input("Kies een optie"))
         self.caseid = case_nr
         select_st = select([Case]).where(
@@ -57,76 +63,106 @@ class Database():
             print 'Inladen van ', row.Image
             self.hoofdmenu_refrentie.add_image(row.Image)
 
-    def select_image(self, path):
-
-
-    def add_case(self, naam):
-
-    def add_image(self, path):
-        # Eerst alle images uitlezen, vervolgens herschrijven
-        # werk met ;;;;   om meerdere images toe te voegen
-
-        # Stap loggen!!
-
-    def write_log(self, log):
-        # Log wegschrijven met UserID en CaseID / Timestamp
-
-
-    def write_rapportage(self, rapport):
-        #meerdere regels??
-        # Wegschrijven met USerid en CaseID
-
-    def write_error(self, error):
-        # same met userid en caseid
-
-    def write_export(self, naam, meta, doel, bron):
-        # wegschrijven emt userid en caseid
-
-
-
-
-    #def add_image(self, path):
-        #self.write_log('Heeft image toegevoegd aan case')
-
-    def cli(self):
-        while True:
-            print "\t[1] Nieuwe Case"
-            print "\t[2] Bestaande Case Kiezen"
-            print "\t[3] Terug"
-
-            optie = int(raw_input("Kies een optie [0-9]"))
-            # date = DateTime()
-
-            if optie == 1:
-                self.add_case()
-
-
-            if optie == 2:
-                self.select_case()
-
-
-            if optie == 3:
-                break
 
     def add_case(self):
         image = str(raw_input("Voer het pad naar de image in"))
         naam = str(raw_input("Voer de naam van de case in: "))
 
-        case = Case(Image=image, Naam=naam)
+
+        case = Case(Image=image, Naam=naam, Datum=datetime.now())
 
         self.session.add(case)
         self.session.commit()
 
-    def select_case(self):
+        self.write_log("Heeft een nieuwe Case toegevoegd")
+
+    def add_image(self):
+        img = None
+        img_path = None
+        select_st = select([Case]).where(
+            Case.ID == self.caseid)
+        selected_case = self.conn.execute(select_st)
+
+
+        # Eerst alle images uitlezen, vervolgens herschrijven
+        print "De ingeladen Images zijn: "
+        for row in selected_case:
+            print row.Image
+            img = row.Image
+
+        path = raw_input("Voer het pad naar uw nieuwe Image in: ")
+        self.hoofdmenu_refrentie.add_image(path)
+
+        # werk met ;;;; om meerdere images toe te voegen
+        self.session.query(Case).filter_by(ID=self.caseid).update({"Image": img + ";" + path})
+        self.session.commit()
+
+        # Stap loggen!!
+        self.write_log("Nieuw Image toegevoegd aan Case")
+
+    def write_log(self, bericht):
+        # Log wegschrijven met UserID en CaseID / Timestamp
+        log = Logboek(UserID=self.userid, CaseID=self.caseid, Handeling=bericht, Datum=datetime.now())
+
+        self.session.add(log)
+        self.session.commit()
+
+
+    def write_rapportage(self, titel, rapport):
+        #meerdere regels??
+        #Wegschrijven met USerid en CaseID
+        data = None
+        select_st = select([Case]).where(
+            Case.ID == self.caseid)
+        selected_case = self.conn.execute(select_st)
+
+        # Eerst alle images uitlezen, vervolgens herschrijven
+        print "De ingeladen Images zijn: "
+        for row in selected_case:
+            print row.Image
+            data = row.Image
+
+        rapport = Logboek(UserID=self.userid, CaseID=self.caseid, Titel=titel, Data=rapport, Datum=datetime.now())
+
+        self.session.query(Rapportage).filter_by(ID=self.caseid).update({"Data": data + ";" + path})
+        self.session.commit()
+
+    #def write_error(self, error):
+        # same met userid en caseid
+
+    #def write_export(self, naam, meta, doel, bron):
+        # wegschrijven met userid en caseid
 
 
 
 
+    def user(self):
+        while True:
+            print "\t[1] Nieuwe User"
+            print "\t[2] Bestaande User kiezen"
+            optie = int(raw_input("Kies een optie :"))
+            if optie == 1:
+                self.add_user()
+            if optie == 2:
+                self.select_user()
+                self.case()
+                break
 
+    def case(self):
+        while True:
+            print "\t[1] Nieuwe Case"
+            print "\t[2] Bestaande Case Kiezen"
+            optie = int(raw_input("Kies een optie [0-9]"))
+            # date = DateTime()
+
+            if optie == 1:
+                self.add_case()
+            if optie == 2:
+                self.select_case()
+                break
 
     def run(self):
-        self.cli()
-
+        self.user()
 
 
 

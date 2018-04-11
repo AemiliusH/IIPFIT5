@@ -1,8 +1,10 @@
 
 from Image.Image import *
+from Utils.Models import *
 from Modules.bestand import *
 from Modules.browser import *
 from Modules.foto import *
+from Utils.Database import *
 #from Web.Web import *
 from Utils.FileType import *
 
@@ -14,7 +16,7 @@ header = '''    ______                           _         ______            ___
                                                                              '''
 
 
-class Hoofdmenu():
+class Hoofdmenu:
 
     # Instanties van losse modules
     logger = None
@@ -30,69 +32,67 @@ class Hoofdmenu():
 
     def __init__(self):
         # Handmatig toevoegen van images d.m.v. path naar file
-        self.images.append(
-            Image('C:\\Users\\0x000000\\Documents\\LCB\\USBKOPIEroze16GB.E01'))
-        self.images.append(Image(
-            'C:\\Users\\0x000000\\Documents\\School\\Hogeschool Leiden\\Jaar 2\\IPFIT5\\Images\\sample_image_01.E01'))
-        self.images.append(Image(
-            'C:\\Users\\0x000000\\Documents\\School\\Hogeschool Leiden\\Jaar 2\\IPFIT5\\Images\\sample_image_02.E01'))
+        #self.images.append(
+            #Image('C:\\Users\\0x000000\\Documents\\LCB\\USBKOPIEroze16GB.E01'))
+        #self.images.append(Image(
+            #'C:\\Users\\0x000000\\Documents\\School\\Hogeschool Leiden\\Jaar 2\\IPFIT5\\Images\\sample_image_01.E01'))
+        #self.images.append(Image('D:\\Test_image_5.E01'))
 
         # Initaliseren van individuele modules
+        self.database = Database(self)
         self.bestand = Bestand(self)
         self.browser = Browser(self)
         self.foto = Foto(self)
+
+        #self.database.run()
         self.cli()
+
+
         # Optioneel: Websocket
         #self.web = Socket(5002, 'Forensic Toolkit', self)
 
-      # self.web.run(False)
+      #  self.web.run(False)
 
     def add_image(self, path):
-        '''
-        Image Toevoegen aan case
-        :param path: Path naar bestand
-        :return: None
-        '''
         # Toevoegen image aan hoofdmenu
-        self.images.append(Image(path))
+        splitted = path.split(';')
+        for i in splitted:
+            print i
+            self.images.append(Image(i))
+        #self.database.add_image()
 
     def cli(self):
-        '''
-        Command Line Interface voor application
-        :return: None
-        '''
-        self.print_header()
+        self.database.run()
         # Commandline interface blijft beschikbaar door loop
         # Vanuit commandline kan worden aangegeven welke module moet worden gestart
         while True:
             # Printen van alle opties
             print ''
-            print '\t[1] Bestand'
-            print '\t[2] Browser'
-            print '\t[3] Foto'
-            print '\t[4] Add Image File (dd/E01)'
+            print '\t[0] Bestand'
+            print '\t[1] Browser'
+            print '\t[2] Foto'
+            print '\t[3] Add Image File (dd/E01)'
+            print '\t[4] Start WebAPI (Flask)'
             print '\t[0] Exit'
 
             # Uitlezen gebruikersinput
             input = int(raw_input('Please choose an option [0-9]: '))
 
             # Input verwerken en aanroepen juiste functie
-            if input == 1:
+            if input == 0:
                 self.bestand.run()
-            if input == 2:
+            if input == 1:
                 self.browser.run()
-            if input == 3:
+            if input == 2:
                 self.foto.run()
-            if input == 4:
-                self.images.append(Image(raw_input("Path: ")))
+            if input == 3:
+                self.database.add_image()
+            #f input == 4:
+                #self.web.run(False)
             if input == 0:
                 exit(1)
 
     def print_header(self):
-        '''
-        Printen van het mooie logo
-        :return: None
-        '''
         print header
 
 

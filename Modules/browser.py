@@ -12,9 +12,25 @@ from sqlalchemy import Column, Integer
 from tabulate import tabulate
 
 
-class Browser():
+class Browser:
     def __init__(self, hoofdmenu):
         self.hoofdmenu_refrentie = hoofdmenu
+
+    def generate_hashlist(self):
+        # Gebruiker een partitie uit een image laten selecteren
+        partitie = self.select_partition()
+        # Array van bestanden opslaan
+        files = partitie.files
+        # Nieuwe array maken om metadata per file op te lsaan
+        array_list = []
+        # Voor iedere file meta-data opslaan naar array_list
+        for file in files:
+            array_list.append(file.get_attributes())
+
+        # Printen van mooie tabel
+        print tabulate(array_list, headers=[
+                       'Name', 'Size', 'Created', 'Changed', 'Modified', 'MD5', 'SHA256'])
+        self.hoofdmenu_refrentie.database.write_log("Heeft een lijst van hashes gegenereert op het scherm")
 
     def select_partition(self):
         print 'Please select an image: '
@@ -102,6 +118,8 @@ class Browser():
         print "De gevonden browsers zijn: "
         print tabulate(browse_arr, headers=['Naam', 'Sha256'])
         print ""
+        self.hoofdmenu_refrentie.database.write_log("Heeft browsers geidentificeerd")
+
 
 
 
@@ -133,6 +151,7 @@ class Browser():
         return session
 
     def cookies(self):
+        self.hoofdmenu_refrentie.database.write_log("Heeft Mozilla Firefox cookies gezocht")
         cookies_arr = []
         paritie = self.select_partition()
         for bestand in paritie.files:
@@ -156,12 +175,14 @@ class Browser():
                     cookies_arr.append([cookie.id, cookie.name, cookie.host])
                 print tabulate(cookies_arr, headers=["ID","Naam", "Host"])
                 clear_mappers()
+
                 #os.remove(path)
 
             # if type[0] is '.SQLITE3':
             #   print bestand.path + bestand.name
 
     def cookies_chrome(self):
+        self.hoofdmenu_refrentie.database.write_log("Heeft Chrome cookies gezocht")
         cookies_arr = []
         paritie = self.select_partition()
         for bestand in paritie.files:
@@ -188,7 +209,9 @@ class Browser():
                 clear_mappers()
 
 
+
     def bookmarks(self):
+        self.hoofdmenu_refrentie.database.write_log("Heeft Mozilla Firefox Bookmarks gezocht")
         bookmarks_arr = []
         paritie = self.select_partition()
         for bestand in paritie.files:
@@ -213,9 +236,11 @@ class Browser():
                     bookmarks_arr.append([bookmark.id, bookmark.title])
                 print tabulate(bookmarks_arr, headers=["ID", "Naam"])
                 clear_mappers()
+
                 # path.remove()
 
     def history(self):
+        self.hoofdmenu_refrentie.database.write_log("Heeft Mozilla Firefox History gezocht")
         history_arr = []
         paritie = self.select_partition()
         for bestand in paritie.files:
@@ -241,7 +266,9 @@ class Browser():
                 print tabulate(history_arr, headers=["ID", "Naam", "URL"])
                 clear_mappers()
 
+
     def downloads(self):
+        self.hoofdmenu_refrentie.database.write_log("Heeft Mozilla Firefox Downloads gezocht")
         downloads_arr = []
         paritie = self.select_partition()
         for bestand in paritie.files:
@@ -266,7 +293,9 @@ class Browser():
                 print tabulate(downloads_arr, headers=["Naam", "Afkomst"])
                 clear_mappers()
 
+
     def chrome_login(self):
+        self.hoofdmenu_refrentie.database.write_log("Heeft Chrome login data gezocht")
         chrome_arr = []
         paritie = self.select_partition()
         for bestand in paritie.files:
@@ -292,9 +321,11 @@ class Browser():
                     chrome_arr.append([cookie.origin_url, cookie.username_value, cookie.times_used, str(pwd[1])])
                 print tabulate(chrome_arr, headers=["URL","Username","Hoe vaak gebruikt","Wachtwoord"])
                 clear_mappers()
+
                 # os.remove(path)
 
     def chrome_history(self):
+        self.hoofdmenu_refrentie.database.write_log("Heeft Chrome History gezocht")
         chrome_arr = []
         paritie = self.select_partition()
         for bestand in paritie.files:
@@ -319,9 +350,11 @@ class Browser():
                     chrome_arr.append([cookie.id, cookie.url, cookie.title, cookie.visit_count])
                 print tabulate(chrome_arr, headers=["ID", "URL", "Naam", "Hoe vaak bezocht"])
                 clear_mappers()
+
                 #os.remove(path)
 
     def chrome_topsites(self):
+        self.hoofdmenu_refrentie.database.write_log("Heeft Chrome's meest bezochte pagina's gezocht")
         chrome_arr = []
         paritie = self.select_partition()
         for bestand in paritie.files:
@@ -346,6 +379,7 @@ class Browser():
                     chrome_arr.append([cookie.url, cookie.title, cookie.boring_score])
                 print tabulate(chrome_arr, headers=["URL", "TITLE", "Boring Score(in %)"])
                 clear_mappers()
+
                 #os.remove(path)
 
 
