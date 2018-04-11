@@ -26,9 +26,42 @@ class Database():
         Session = sessionmaker(bind=engine)
         self.session = Session()
         self.pad = None
+        if hoofdmenu is not None:
+            self.setSettings()
+        else:
+            self.getSettings()
+
+    def setSettings(self):
+        settings = open('settings.cfg', 'w+')
+        settings.write(str(self.userid)+';'+str(self.caseid))
+        settings.close()
+
+    def getSettings(self):
+        settings = open('settings.cfg', 'r')
+        inhoud = settings.read().split(';')
+        self.userid = int(inhoud[0])
+        self.caseid = int(inhoud[1])
+
+    def timestamp(self):
+        return str('[' + datetime.now().strftime('%Y-%m-%d %H:%M:%S') + ']')
+
+    def Logger(self, bericht, console=True):
+        self.write_log(bericht)
+        if console:
+            print self.timestamp(), bericht
+
+    def Debugger(self, bericht, console=False):
+        self.write_log(str('[Debug] ' + bericht))
+        if console:
+            print str(self.timestamp() + Debug + bericht)
+
+    def Reporter(self, titel, bericht, console=True):
+        self.write_rapportage(title, bericht)
+        if console:
+            print str(self.timestamp() + '[' + title + ']' + bericht)
 
     def select_user(self):
-        # inladen userid voor later gebruik
+        # inladen self.userid voor later gebruik
         print "Selecteer een gebruiker: "
 
         for name in self.session.query(User):
@@ -36,6 +69,7 @@ class Database():
                 '] ', name.Naam, name.Achternaam
 
         self.userid = raw_input("Kies een optie: ")
+        self.setSettings()
 
     def add_user(self):
         voornaam = raw_input("Vul uw voornaam in: ")
@@ -59,6 +93,7 @@ class Database():
             print '[' + str(i.ID) + ']', i.Naam, i.Datum
         case_nr = int(raw_input("Kies een optie"))
         self.caseid = case_nr
+        self.setSettings()
         select_st = select([Case]).where(
             Case.ID == case_nr)
         selected_case = self.conn.execute(select_st)
@@ -66,7 +101,6 @@ class Database():
             images = row.Image.split(';')
             for image in images:
                 if len(image) > 5:
-                    print '[DEUBGGG] ', image
                     self.hoofdmenu_refrentie.add_image(image)
 
     def add_case(self):
@@ -103,7 +137,7 @@ class Database():
         self.write_log("Nieuw Image toegevoegd aan Case")
 
     def write_log(self, bericht):
-        # Log wegschrijven met UserID en CaseID / Timestamp
+        # Log wegschrijven met self.userid en CaseID / Timestamp
         log = Logboek(UserID=self.userid, CaseID=self.caseid,
                       Handeling=bericht, Datum=datetime.now())
 
@@ -112,7 +146,7 @@ class Database():
 
     def write_rapportage(self, titel, rapport):
         # meerdere regels??
-        # Wegschrijven met USerid en CaseID
+        # Wegschrijven met self.userid en CaseID
         data = None
         select_st = select([Case]).where(
             Case.ID == self.caseid)
@@ -132,10 +166,10 @@ class Database():
         self.session.commit()
 
     # def write_error(self, error):
-        # same met userid en caseid
+        # same met self.userid en caseid
 
     # def write_export(self, naam, meta, doel, bron):
-        # wegschrijven met userid en caseid
+        # wegschrijven met self.userid en caseid
 
     def user(self):
         while True:

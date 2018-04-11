@@ -11,6 +11,7 @@ from zipfile import ZipFile
 
 from Utils.FileType import *
 from Utils.VirusToal import *
+from Utils.log import *
 
 
 class Bestand():
@@ -28,6 +29,7 @@ class Bestand():
         Genereerd een lijst met alle hashes van geselecteerde partitie
         :return: None
         '''
+
         Debugger('Generating Hashlist...')
         # Gebruiker een partitie uit een image laten selecteren
         partitie = self.select_partition()

@@ -5,6 +5,7 @@ from Modules.bestand import *
 from Modules.browser import *
 from Modules.foto import *
 from Utils.Database import *
+from Utils.log import *
 #from Web.Web import *
 from Utils.FileType import *
 
@@ -32,13 +33,16 @@ class Hoofdmenu:
 
     def __init__(self):
         print header
-
         # Initaliseren van individuele modules
         self.database = Database(self)
+        Debugger('Initalising Modules!')
+
         self.bestand = Bestand(self)
         self.browser = Browser(self)
         self.foto = Foto(self)
 
+        Debugger('Done initalising Modules!')
+        Debugger('Running user CLI')
         # self.database.run()
         self.database.run()
         self.cli()
@@ -50,6 +54,7 @@ class Hoofdmenu:
 
     def add_image(self, path):
         # Toevoegen image aan hoofdmenu
+        Debugger('Adding Image: ' + str(path))
         self.images.append(Image(path))
 
     def cli(self):
@@ -58,6 +63,7 @@ class Hoofdmenu:
         # Vanuit commandline kan worden aangegeven welke module moet worden gestart
 
         while True:
+
             # Printen van alle opties
             print ''
             print '\t[1] Bestand'
@@ -66,9 +72,10 @@ class Hoofdmenu:
             print '\t[4] Add Image File'
             print '\t[0] Exit'
 
+            self.database.Debugger('Main Menu')
             # Uitlezen gebruikersinput
             input = int(raw_input('Please choose an option [0-9]: '))
-
+            Debugger('Selected Option: ' + str(input))
             # Input verwerken en aanroepen juiste functie
             if input == 1:
                 self.bestand.run()
