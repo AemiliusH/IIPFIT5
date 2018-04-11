@@ -11,7 +11,6 @@ class Image():
 
         # Opslaan belangrijke parameter
         self.image_path = image_path
-
         # Opening Image in pyEWF
         self.image_files = pyewf.glob(self.image_path)
         self.ewf_handle = pyewf.handle()

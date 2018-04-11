@@ -84,6 +84,7 @@ class Foto():
                      'PBM', 'PCD', 'PCX', 'PCT', 'PGM', 'PNG', 'PPM', 'PSD', 'RAS', 'TGA', 'TIFF', 'WMF']
             if info[0] in types:
                 print bestand.name
+                self.main.database.write_log("Heeft bestandsnamen van gevonden foto's geprint op het scherm")
 
     def soortcamera(self):
         # met StringIO open je virtueel een bestand zoals die op je computer zou zijn.
@@ -95,6 +96,7 @@ class Foto():
             if fabriekant not in fabrikanten:
                 fabrikanten.append(fabriekant)
                 print fabriekant
+                self.main.database.write_log("Heeft de soorten gebruikte Camera's opgezocht")
 
     def bestandpercamera(self):
         # Er is hier voor elke camera soort een array gemaakt, daarna kijkt die met exifread naar de metadata Image make en daaruit haalt die het soort camera en voegt die het aan de goede lijst toe.
@@ -149,6 +151,7 @@ class Foto():
                 kodak.append(item.name)
 
         print str(len(cameras)) + " foto's gevonden:"
+        self.main.database.write_log("Heeft " + str(len(cameras)) + " foto's gevonden")
         if len(sony) >= 1:
             print "sony's: " + str(sony)
         if len(canon) >= 1:
@@ -170,6 +173,7 @@ class Foto():
 
     def heeftexif(self):
         # loop door de foto's heen en kijk per foto naar de lengte van de exifdata en print dat.
+        self.main.database.write_log("Heeft de exifdata van gevonden foto's geprint")
         for item in self.get_fotos():
             bestand = StringIO(item.read_raw_bytes())
             tags = exifread.process_file(bestand)
@@ -183,3 +187,4 @@ class Foto():
             array.append([file.name, file.sha256()])
 
         print tabulate(array, headers=['Naam', 'SHA256'])
+        self.main.database.write_log("Heeft een lijst van hashes gegenereert")

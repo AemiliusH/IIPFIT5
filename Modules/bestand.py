@@ -39,10 +39,14 @@ class Bestand():
             # Printen van mooie tabel
             print tabulate(array_list, headers=[
                            'Name', 'Size', 'Created', 'Changed', 'Modified', 'MD5', 'SHA256'])
+            self.main.database.write_log("Heeft een lijst van hashes gegenereert op het scherm")
         else:
             # Wegschrijven van data naar .csv file
             self.save_array_to_csv(
                 array_list, 'Name;Size;Created;Changed;Modified;MD5;SHA256\n')
+            self.main.database.write_log("Heeft een lijst van hashes geexporteerd als CSV")
+
+
 
     def generate_timeline(self):
         # Gebruiker een partitie uit image laten selecteren
@@ -85,10 +89,12 @@ class Bestand():
             # Mooie tabel printen
             print tabulate(array_list, headers=[
                            'Name', 'Size', 'Created', 'Changed', 'Modified', 'MD5', 'SHA256'])
+            self.main.database.write_log("Heeft een TimeLine op het Scherm geprint")
         else:
             # Data wegschrijven naar csv
             self.save_array_to_csv(
                 array_list, 'Name;Size;Created;Changed;Modified;MD5;SHA256\n')
+            self.main.database.write_log("Heeft een TimeLine weggeschreven naar CSV")
 
     # Functie om dubbele array weg te schrijven naar CSV
     def save_array_to_csv(self, array, head):
@@ -153,6 +159,7 @@ class Bestand():
         # Requested language from file
         file_handle.print_language_table()
         print '==' * 30
+        self.main.database.write_log("Heeft gezocht naar gebruikte talen")
 
     def generate_ziplist(self):
         # gebruiker een partiie laten selecteren
@@ -187,9 +194,11 @@ class Bestand():
         if input == 0:
             # Mooie tabel printen
             print tabulate(zip_array, headers=['Filename', 'Created', 'Size'])
+            self.main.database.write_log("Heeft een lijst van Zips op het scherm geprint")
         else:
             # Data wegschrijven naar .csv
             self.save_array_to_csv(zip_array, 'Filename;Created;Size')
+            self.main.database.write_log("Heeft een lijst van Zips geexporteerd")
 
         zip.close()
 
@@ -197,7 +206,6 @@ class Bestand():
         # alle files ophalen uit geselecteerde partitie
         files = self.select_partition().files
         file_array = []
-        unknown_file_array[]
         # Iedere file analyseren
         # Alle bekende files wegschrijven naar file_array
         # Wanneeer deze onbekend is de file name gebruiken als extentie
@@ -216,10 +224,12 @@ class Bestand():
             # Printen mooie tabel
             print tabulate(file_array, headers=[
                            'Extention', 'Description', 'Filename'])
+            self.main.database.write_log("Heeft een lijst van Filetypes geprint op het scherm")
         else:
             # data wegschrijven naar .csv
             self.save_array_to_csv(
                 file_array, 'Extention;Description;FileName')
+            self.main.database.write_log("Heeft een lijst van Filetypes weggeschreven naar CSV")
 
     # CommandLineInterface Vanuit hier wordt de module aangestuurd
     def cli(self):
@@ -269,6 +279,7 @@ class Bestand():
     # Geselecteerd bestand exporteren
     def export_file(self):
         self.select_file().export()
+
 
     # Starten van Bestand's module
     def run(self):

@@ -1,6 +1,7 @@
 
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, func
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import backref, relationship
 
 Base = declarative_base()
 
@@ -15,6 +16,7 @@ class User(Base):
     ID= Column(Integer(), primary_key=True)
     Naam = Column(String(50))
     Achternaam = Column(String(50))
+    Datum = Column(DateTime(timezone=True), server_default=func.now())
 
 '''CREATE TABLE `Case` (
 	`ID`	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
@@ -29,7 +31,7 @@ class Case(Base):
     ID= Column(Integer(), primary_key=True)
     Image = Column(Integer())
     Naam = Column(String(50))
-    #Datum = Column(DateTime())
+    Datum = Column(DateTime(timezone=True), server_default=func.now())
 
 
 '''CREATE TABLE `Error_Logs` (
@@ -73,7 +75,7 @@ class Exports(Base):
     MetaData = Column(String(50))
     LocatieBron = Column(String(50))
     LocatieDoel = Column(String(50))
-    Datum = Column(Integer())
+    Datum = Column(DateTime(timezone=True), server_default=func.now())
 
 
 '''CREATE TABLE `Image` (
@@ -83,7 +85,7 @@ class Exports(Base):
 	`Grootte`	INTEGER NOT NULL
 );'''
 
-class Image(Base):
+class Images(Base):
     __tablename__ = 'Image'
     ID= Column(Integer(), primary_key=True)
     Naam = Column(String(50))
@@ -103,11 +105,12 @@ class Image(Base):
 
 class Logboek(Base):
     __tablename__ = 'Logboek'
-    ID= Column(Integer(), primary_key=True)
+    ID = Column(Integer(), primary_key=True)
     UserID = Column(Integer(), ForeignKey('User.ID'))
     CaseID = Column(Integer(), ForeignKey('Case.ID'))
-    Handeling = Column(String(50))
-    Tijd = Column(Integer)
+    Handeling = Column(String(500))
+    Datum = Column(DateTime(timezone=True), server_default=func.now())
+
 
 '''CREATE TABLE `Rapportage` (
 	`ID`	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
@@ -124,4 +127,6 @@ class Rapportage(Base):
     ID= Column(Integer(), primary_key=True)
     UserID = Column(Integer(), ForeignKey('User.ID'))
     CaseID = Column(Integer(), ForeignKey('Case.ID'))
-    Resultaten = Column(String(50))
+    Titel = Column(String(50))
+    Data = Column(String(500))
+    Datum = Column(DateTime(timezone=True), server_default=func.now())
