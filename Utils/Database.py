@@ -7,7 +7,7 @@ from sqlalchemy.orm import mapper, sessionmaker, clear_mappers
 from sqlalchemy import Column, Integer
 from tabulate import tabulate
 from datetime import datetime
-
+from sqlalchemy import desc
 from Models import *
 
 
@@ -31,10 +31,13 @@ class Database():
         else:
             self.getSettings()
 
-    def show_log(self):
-        logger = self.session.query(Logboek)
-        for log in logger:
-            print str(log.ID) + '\t' + log.Handeling
+    def get_log(self):
+        select_st = select([Logboek]).where(
+            Case.ID == self.caseid and User.ID == self.userid).order_by(desc(Logboek.ID)).limit(100)
+        selected_case = self.conn.execute(select_st)
+
+        #logger = self.session.query(Logboek)
+        return selected_case
 
     def setSettings(self):
         settings = open('settings.cfg', 'w+')

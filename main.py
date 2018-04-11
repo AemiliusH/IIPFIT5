@@ -70,7 +70,7 @@ class Hoofdmenu:
             print '\t[2] Browser'
             print '\t[3] Foto'
             print '\t[4] Add Image File'
-            print '\t[5] Show Log'
+            print '\t[5] Logboek'
             print '\t[0] Exit'
 
             Debugger('Main Menu')
@@ -87,13 +87,31 @@ class Hoofdmenu:
             if input == 4:
                 self.database.add_image()
             if input == 5:
-                self.database.show_log()
+                self.logboek()
             if input == 0:
                 Debugger('Exiting Program...', True)
                 exit(1)
 
     def print_header(self):
         print header
+
+    def logboek(self):
+        logger = self.database.get_log()
+
+        print '\t[0] Print Logboek'
+        print '\t[1] Store to CSV'
+
+        log_array = []
+        for log in logger:
+            log_array.append([str(log.ID), log.Handeling, log.Datum])
+
+        inp = int(raw_input('Maak een keuze [0-9] '))
+        if inp == 0:
+            print tabulate(log_array, headers=['ID', 'Handeling', 'Datum'])
+        else:
+            self.bestand.save_array_to_csv(
+                log_array, ['ID', 'Handeling', 'Datum'])
+
 
 
 # Inialiseren van hoofdmenu
