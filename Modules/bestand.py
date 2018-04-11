@@ -3,6 +3,7 @@ import pytsk3
 import binascii
 import datetime
 import re
+import os
 
 from StringIO import StringIO
 from tabulate import tabulate
@@ -10,7 +11,7 @@ from zipfile import ZipFile
 
 from Utils.FileType import *
 from Utils.VirusToal import *
- 
+
 
 class Bestand():
 
@@ -27,6 +28,7 @@ class Bestand():
         Genereerd een lijst met alle hashes van geselecteerde partitie
         :return: None
         '''
+        Debugger('Generating Hashlist...')
         # Gebruiker een partitie uit een image laten selecteren
         partitie = self.select_partition()
         # Array van bestanden opslaan
@@ -45,16 +47,16 @@ class Bestand():
 
         if result == 0:
             # Printen van mooie tabel
+            Debugger('Printing hashlist')
             print tabulate(array_list, headers=[
                            'Name', 'Size', 'Created', 'Changed', 'Modified', 'MD5', 'SHA256'])
-            self.main.database.write_log("Heeft een lijst van hashes gegenereert op het scherm")
+            self.main.database.write_log(
+                "Heeft een lijst van hashes gegenereert op het scherm")
         else:
             # Wegschrijven van data naar .csv file
+            Debugger('Storing Hashlist as CSV')
             self.save_array_to_csv(
                 array_list, 'Name;Size;Created;Changed;Modified;MD5;SHA256\n')
-            self.main.database.write_log("Heeft een lijst van hashes geexporteerd als CSV")
-
-
 
     def generate_timeline(self):
         '''
@@ -62,6 +64,9 @@ class Bestand():
         :return: None
         '''
         # Gebruiker een partitie uit image laten selecteren
+
+        Debugger('Generating Timeline')
+
         partitie = self.select_partition()
 
         # Gebruikers input uitlezen
@@ -71,11 +76,13 @@ class Bestand():
         print '\t[2] File Changed'
         type = int(raw_input('\nPlease Choose an option [0-9]: '))
 
+        Debugger('Selected type: ' + str(type))
         print '\t[0] Oldest First'
         print '\t[1] Newest First'
         order = bool(int(raw_input('\nPlease choose an option[0-9]: ')))
 
-        print 'Generating List......'
+        Debugger('Selected order: ' + str(order))
+        Logger('Genereating Timeline...')
         # Array voor files met meta-data
         timeline = []
         # referentie naar file array opslaan
@@ -94,20 +101,26 @@ class Bestand():
 
         print '\t[0] Print Timeline'
         print '\t[1] Export Timeline (CSV)'
+
         # Gebruikersinput afhandelen
         result = int(raw_input('\nPlease choose an option[0-9]: '))
 
         if result == 0:
+            Debugger('Printing Timetable')
+
             # Mooie tabel printen
             print tabulate(array_list, headers=[
                            'Name', 'Size', 'Created', 'Changed', 'Modified', 'MD5', 'SHA256'])
-            self.main.database.write_log("Heeft een TimeLine op het Scherm geprint")
+            self.main.database.write_log(
+                "Heeft een TimeLine op het Scherm geprint")
         else:
+
+            Debugger('Storing timetable as CSV')
             # Data wegschrijven naar csv
             self.save_array_to_csv(
                 array_list, 'Name;Size;Created;Changed;Modified;MD5;SHA256\n')
-            self.main.database.write_log("Heeft een TimeLine weggeschreven naar CSV")
-
+            self.main.database.write_log(
+                "Heeft een TimeLine weggeschreven naar CSV")
 
     def save_array_to_csv(self, array, head):
         '''
@@ -118,6 +131,9 @@ class Bestand():
         '''
         # Bestandsnaam vragen aan gebruiker
         filename = raw_input('\nEnter Filename: ')
+
+        Debugger('Writing CSV data to: ' +
+                 str(os.path.dirname(os.path.abspath(__file__))) + filename + '.csv')
         # Referentie naar bestand openen (bestandsnaam + .csv)
         file = open(filename + '.csv', 'w')
         # Wegschrijven 'header', dit is de eerste regel met column informatie
@@ -126,11 +142,14 @@ class Bestand():
         for obj in array:
             file.write(';'.join(str(e) for e in obj) + '\n')
 
+        Debugger('Succesfully Written!')
+
     def select_partition(self):
         '''
         Funcite om gebruiker een partitie te laten selecteren
         :return: Geselecteerde FSParInfo object
         '''
+
         print 'Please select an image: '
         # printen van iedere image, met path. Waarvan de ID overeenkomt met de array positie
         for a in range(len(self.main.images)):
@@ -138,6 +157,9 @@ class Bestand():
 
         # Gebruiker de image laten selecteren
         image = int(raw_input('\nPlease Choose an option [0-9]: '))
+
+        Debugger('Selected Image: ' + self.main.images[image].image_path)
+
         print 'Please select an Partition: '
         # Printen van alle partities van geselecteerde image
         # Met informatie over de grootte van de paritie MB en de partitie ID
@@ -150,9 +172,10 @@ class Bestand():
         # Gebruiker's input afhandelen
         part = int(raw_input('\nPlease Choose an option [0-9]: '))
 
+        Debugger('Selected Partition: ' + str(part) + ' ' +
+                 str(self.main.images[image].ewf_img_info.get_partitions()[part].desc))
         # returnen van partitie object
         return self.main.images[image].ewf_img_info.get_partitions()[part]
-
 
     def select_file(self):
         '''
@@ -168,6 +191,8 @@ class Bestand():
             except:
                 pass
         file = int(raw_input('\nPlease select an file: '))
+        Debugger('Selected File: ' + str(file) +
+                 ' ' + str(partitie.files[file].name))
         # Getting object of selected file
         return partitie.files[file]
 
@@ -176,6 +201,7 @@ class Bestand():
         Detecteerd taal per bestand
         :return: None
         '''
+        Debugger('Finding Language For file')
         # Getting object of selected file
         file_handle = self.select_file()
 
@@ -185,10 +211,10 @@ class Bestand():
         print 'SHA1:\t\t' + str(file_handle.sha1())
         print 'SHA256:\t\t' + str(file_handle.sha256())
 
+        Debugger('Printing Language table to console')
         # Requested language from file
         file_handle.print_language_table()
         print '==' * 30
-        self.main.database.write_log("Heeft gezocht naar gebruikte talen")
 
     def generate_ziplist(self):
         '''
@@ -196,10 +222,13 @@ class Bestand():
         Gebaseerd op gebruikersinput
         :return: None
         '''
+        Debugger('Generating ZIP list')
+
         # gebruiker een partiie laten selecteren
         partitie = self.select_partition()
         ziplist = []
 
+        Debugger('Finding all ZIP\'s from Partition')
         # Lijst met zipfiles genereren
         for a in range(len(partitie.files)):
             if partitie.files[a].get_extention()[0] is 'ZIP':
@@ -209,6 +238,8 @@ class Bestand():
 
         # Gebruiker de zipfile laten selecteren
         zip_id = int(raw_input("Please select an zipfile [0-9]"))
+
+        Debugger('Selected ZIP with ID: ' + str(zip_id))
         file_handle = ziplist[zip_id]
 
         # Geselecteerde zipfile openen als virtueel bestand met StringIO
@@ -226,13 +257,16 @@ class Bestand():
         # Gebruikersinput ophalen
         input = int(raw_input('\nPlease Choose an option [0-9]: '))
         if input == 0:
+            Debugger('Printing ZIP List')
             # Mooie tabel printen
             print tabulate(zip_array, headers=['Filename', 'Created', 'Size'])
-            self.main.database.write_log("Heeft een lijst van Zips op het scherm geprint")
+
         else:
+            Debugger('Writing ZIP list to CSV')
             # Data wegschrijven naar .csv
             self.save_array_to_csv(zip_array, 'Filename;Created;Size')
-            self.main.database.write_log("Heeft een lijst van Zips geexporteerd")
+            self.main.database.write_log(
+                "Heeft een lijst van Zips geexporteerd")
 
         zip.close()
 
@@ -242,12 +276,16 @@ class Bestand():
         Gebaseerd op gebruikresinput
         :return: None
         '''
+
+        Debugger('Generating Filetypelist')
         # alle files ophalen uit geselecteerde partitie
         files = self.select_partition().files
         file_array = []
         # Iedere file analyseren
         # Alle bekende files wegschrijven naar file_array
         # Wanneeer deze onbekend is de file name gebruiken als extentie
+
+        Debugger('Finding Filetypes for selected partition')
         for file in files:
             type = FileType(file).analyse()
             if type[1] is not '':
@@ -260,16 +298,20 @@ class Bestand():
         # Gebruikers input opnemen
         input = int(raw_input('\nPlease Choose an option [0-9]: '))
         if input == 0:
+            Debugger('Printing info to console')
             # Printen mooie tabel
             print tabulate(file_array, headers=[
                            'Extention', 'Description', 'Filename'])
-            self.main.database.write_log("Heeft een lijst van Filetypes geprint op het scherm")
+            self.main.database.write_log(
+                "Heeft een lijst van Filetypes geprint op het scherm")
         else:
+            Debugger('Storing results in .csv')
+
             # data wegschrijven naar .csv
             self.save_array_to_csv(
                 file_array, 'Extention;Description;FileName')
-            self.main.database.write_log("Heeft een lijst van Filetypes weggeschreven naar CSV")
-
+            self.main.database.write_log(
+                "Heeft een lijst van Filetypes weggeschreven naar CSV")
 
     def cli(self):
         '''
@@ -277,6 +319,7 @@ class Bestand():
         :return: None
         '''
         while True:
+            Debugger('Bestand Hoofdmenu')
             print ''
             print ' ' + '==' * 22
             print '|                  Bestand                   |'
@@ -294,6 +337,7 @@ class Bestand():
 
             # Gebruikersinput uitlezen
             input = int(raw_input('Please choose an option [0-9]: '))
+            Debugger('Selected option: ' + str(input))
             # Aanroepen juiste functie
             if input == 1:
                 self.generate_hashlist()
@@ -312,25 +356,25 @@ class Bestand():
             if input == 8:
                 break
 
-
     def virustotal_file(self):
         '''
         Bestand door virustotal halen
         :return: None
         '''
+        Debugger('Virustotal')
         # Gebruiker een bestand laten selecteren
         file = self.select_file()
         # Virustotal class gebruiken
+        Debugger('Hash Opzoeken in virustotal')
         total = VirusTotal(file).lookup_hash()
-
 
     def export_file(self):
         '''
         Geselecteerd bestand exporteren
         :return: None
         '''
+        Debugger('Bestand Exporteren')
         self.select_file().export()
-
 
     def run(self):
         '''
@@ -343,7 +387,6 @@ class Bestand():
         else:
             # Command Line Interface starten
             self.cli()
-
 
     def generate_hashlist_api(self, image, partitie):
         '''
