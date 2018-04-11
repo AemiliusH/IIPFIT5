@@ -31,6 +31,10 @@ class FSParInfo():
         # Aanmaken bestand / folder array
         self.dirs = []
         self.files = []
+        Debugger('Initalised parition ' + str(self.desc))
+        Debugger('Size: ' + str(self.size))
+        Debugger('Addr: ' + str(self.addr))
+        Debugger('Len: ' + str(self.len))
 
         try:
             # Fileformat uitlezen d.m.v. pytsk3
@@ -48,6 +52,8 @@ class FSParInfo():
         # Bestanden vanaf hoofdmap uitlezen (inclusief subfolders)
         self.recurse_files()
 
+        Debugger('Dirs: ' + str(self.dirs))
+        Debugger('Files: ' + str(self.files))
         # Printig some info..
         Logger("{} Dirs and {} Files located".format(
             str(len(self.dirs)), str(len(self.files))))

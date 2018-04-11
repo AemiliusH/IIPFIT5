@@ -38,8 +38,9 @@ class FSFileInfo():
         self.modify = datetime.utcfromtimestamp(
             self.object_handle.info.meta.mtime)
 
-
     def get_attributes(self):
+        Debugger('Getting Attributes for ' +
+                 str(self.name))
         '''
         Geeft een lijst terug met alle beschikbare meta-data van bestand
         Zeer bruikbaar om tabellen te genereren
@@ -47,12 +48,14 @@ class FSFileInfo():
         '''
         return [self.name, self.size, self.create, self.change, self.modify, self.md5(), self.sha256()]
 
-
     def export(self):
         '''
         Exporteert een bestand vanuit image naar fysieke schijf
         :return: None
         '''
+
+        Debugger('Exporting file:  ' + str(self.name))
+
         # Uitlezen bytes van bestand
         raw_bytes = StringIO(self.object_handle.read_random(0, self.size))
         # Referentie openen naar export bestand op schijf
@@ -62,9 +65,6 @@ class FSFileInfo():
         raw_bytes.seek(0)
         # Verplaatsen van bytes naar bestands referentie
         copyfileobj(raw_bytes, file)
-       
-
-
 
     def head(self, size=4):
         '''
@@ -72,6 +72,10 @@ class FSFileInfo():
         :param size: Grootte van header (standaard 4)
         :return: Bytes
         '''
+
+        Debugger('Getting Header bytes for ' +
+                 str(self.name))
+
         # Leest eerste 4 bytes van file uit
         try:
             return self.object_handle.read_random(0, size)
@@ -79,6 +83,10 @@ class FSFileInfo():
             return ''
 
     def get_extention(self):
+
+        Debugger('Getting Extention for ' +
+                 str(self.name))
+
         '''
         Verkrijgen van extentie informatie vanuit FileType class
         :return: FileType analyse object
@@ -91,12 +99,14 @@ class FSFileInfo():
         Lezen van bytes in try / except
         :return: Alle bytes van file
         '''
+        Debugger('Reading bytes from ' +
+                 str(self.name))
+
         try:
             # Lezen van raw bytes in try / except
             return self.object_handle.read_random(0, self.size)
         except IOError:
             return ''
-
 
     def get_strings(self):
         '''
@@ -104,6 +114,9 @@ class FSFileInfo():
         Waarvan de lengte 4 of langer is
         :return: arraylist met alle woorden in bestand
         '''
+
+        Debugger('Getting all strings from' +
+                 str(self.name))
         # Alle woorden uit bestand krijgen d.m.v. Regulair Expressions
         words = re.findall('[aA-zZ]+', self.read_raw_bytes())
         # Woorden filteren die langer zijn dan 4 karakters
@@ -114,6 +127,8 @@ class FSFileInfo():
         Detecteren van taal waarin een besatnd is geschreven
         :return: detect_langs array
         '''
+        Debugger('Detecting Language for ' +
+                 str(self.name))
         # Omzetten van woordarray naar tekst
         text = ' '.join(self.get_strings())
         # Google's langdetect gebruiken om de taal van een bestand te achterhalen.
@@ -124,6 +139,7 @@ class FSFileInfo():
         Print een tabel van alle talen gebruikt in file
         :return: None
         '''
+
         # Getting all Languages from File
         languages = self.detect_language()
         language_array = []
@@ -139,6 +155,7 @@ class FSFileInfo():
         Bereken MD5 van bestand
         :return: MD5 Hash
         '''
+
         # Inladen van libhash's functie md5()
         libhash = hashlib.md5()
         # Bytes van bestand meegeven aan libhash

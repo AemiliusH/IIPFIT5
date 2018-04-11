@@ -45,21 +45,6 @@ class Database():
     def timestamp(self):
         return str('[' + datetime.now().strftime('%Y-%m-%d %H:%M:%S') + ']')
 
-    def Logger(self, bericht, console=True):
-        self.write_log(bericht)
-        if console:
-            print self.timestamp(), bericht
-
-    def Debugger(self, bericht, console=False):
-        self.write_log(str('[Debug] ' + bericht))
-        if console:
-            print str(self.timestamp() + Debug + bericht)
-
-    def Reporter(self, titel, bericht, console=True):
-        self.write_rapportage(title, bericht)
-        if console:
-            print str(self.timestamp() + '[' + title + ']' + bericht)
-
     def select_user(self):
         # inladen self.userid voor later gebruik
         print "Selecteer een gebruiker: "

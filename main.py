@@ -72,7 +72,7 @@ class Hoofdmenu:
             print '\t[4] Add Image File'
             print '\t[0] Exit'
 
-            self.database.Debugger('Main Menu')
+            Debugger('Main Menu')
             # Uitlezen gebruikersinput
             input = int(raw_input('Please choose an option [0-9]: '))
             Debugger('Selected Option: ' + str(input))

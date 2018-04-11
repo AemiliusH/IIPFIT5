@@ -24,12 +24,12 @@ class Image():
 
             # Aanmaken van EWFImage Class, deze combineert EWF met Pytsk3
             self.ewf_img_info = EWFImgInfo(self.ewf_handle, self)
-            Logger("Succesfully Loaded " + image_path)
+            Logger("Succesfully Loaded as EWF format" + image_path)
         except IOError:
             try:
-                print "Error opening image with EWF... Attempting raw mode"
+                Logger("Error opening image with EWF... Attempting raw mode")
                 self.ewf_img_info = EWFImgInfo(self.image_path, self, True)
-                Logger("Succesfully Loaded " + image_path)
+                Logger("Succesfully Loaded as RAW format" + image_path)
             except:
                 raise Exception(
                     'Unable to open image as filesystem: Cannot determine file system type')
