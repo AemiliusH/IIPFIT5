@@ -8,6 +8,13 @@ from FSFileInfo import *
 
 class FSParInfo():
     def __init__(self, partition_handle, volume_info, image_info, image):
+        '''
+        Partitie informatie en gegevens, waaronder alle bestanden
+        :param partition_handle: Handle naar fsPar
+        :param volume_info: referentie naar volume
+        :param image_info: referentie naar parent image class
+        :param image: referentie naar parent image class
+        '''
         # Opslaan belangrijke parameters
         self.image = image
         self.partition_handle = partition_handle
@@ -44,12 +51,22 @@ class FSParInfo():
         DebugLog("{} Dirs and {} Files located".format(
             str(len(self.dirs)), str(len(self.files))))
 
-    # Verkrijgt de hoofdmap van de partitie
+
     def get_root(self):
+        '''
+        Verkrijgt de hoofdmap van de partitie
+        :return: None
+        '''
         self.root = self.fs_handle.open_dir(path="/")
 
-    # Uitlezen van alle betanden en mappen van partitie
+
     def recurse_dir(self, dir, parent):
+        '''
+        Uitlezen van alle betanden en mappen van partitie
+        :param dir: fsObject van map
+        :param parent: string met parent location
+        :return: None
+        '''
         # Toevoegen van directory's adres aan map array
         # Alle mappen in de map array worden niet meer verwerkt om oneindige loops te voorkomen
         self.dirs.append(dir.info.meta.addr)
@@ -74,8 +91,12 @@ class FSParInfo():
             except AttributeError:
                 DebugLog('Error parsing Object: ' + object.info.name.name)
 
-    # Eenmalige functie voor het uitlezen van alle files uit paritie
+
     def recurse_files(self):
+        '''
+        Eenmalige functie voor het uitlezen van alle files uit paritie
+        :return: None
+        '''
         # Root map toevoegen aan arraylist voor mappen
         # Deze map wordt in het vervolg niet meer verwerkt om oneindige loop's te voorkomen
         self.dirs.append(self.root.info.fs_file.meta.addr)
@@ -97,9 +118,13 @@ class FSParInfo():
             except AttributeError:
                 DebugLog('Error parsing Object: ' + object.info.name.name)
 
-    # Functie voor het maken van een file tabel
-    # Met alle files uitgleezen uit deze partitie
+
     def files_rapport(self):
+        '''
+        Functie voor het maken van een file tabel
+        Met alle files uitgleezen uit deze partitie
+        :return: None
+        '''
         # Aanmaken lege array
         attribute_array = []
         for object in self.files:
@@ -110,6 +135,3 @@ class FSParInfo():
         print tabulate(attribute_array, headers=[
                        'Name', 'Size', 'Created', 'Changed', 'Modified', 'MD5', 'SHA256'])
 
-    # Opvragen van partitie grootte
-    def size(self):
-        return ewf_handle.media_size()

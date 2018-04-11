@@ -2,11 +2,14 @@ import binascii
 
 from Image import * 
 
-# Module voor het achterhalen van de gebruikte filetype
 class FileType:
     extention = ''
 
     def __init__(self, file):
+        '''
+        Module voor het achterhalen van de gebruikte filetypes
+        :param file: FSFileInfo Object
+        '''
         # Opslaan belangrijke parameters
         self.file = file
         # extentie achter . zoeken in file
@@ -14,6 +17,10 @@ class FileType:
             self.extention = self.file.name.split('.')[-1]  
 
     def analyse_header(self):
+        '''
+        Analyseerd header van bestand
+        :return: Arraylist met mogelijke restulaten
+        '''
         # Uitlezen eerste 20 bytes van file
         head = self.file.head(20)
         resultset = []
@@ -28,6 +35,10 @@ class FileType:
         return resultset
 
     def analyse(self):
+        '''
+        Analyseerd header van bestand en selecteerd meest juiste bevinding
+        :return: Array met extentie en informatie over bestand
+        '''
         # Alle bekende headers ophalen
         signatures = self.analyse_header() 
 

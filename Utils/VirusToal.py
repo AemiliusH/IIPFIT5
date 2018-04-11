@@ -14,11 +14,18 @@ class VirusTotal:
     api_key = 'dd7d382168ca4db749f343cfd4f491a9a0aa5d2a94f38a95793fe7f6b8ba0445'
 
     def __init__(self, file):
+        '''
+        Module voor het scannen van files op mogelijke virus infecties
+        :param file: FSFileObject referentie naar te scannen bestand
+        '''
         # Opslaan belangrijke parameters
         self.file_handle = file
 
-    # Bestand controleren op virussen d.m.v. hashing
     def lookup_hash(self):
+        '''
+        Bestand controleren op virussen d.m.v. hashing
+        :return: None
+        '''
         # Hash genereren van file
         sha256 = self.file_handle.sha256()
 

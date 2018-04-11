@@ -38,6 +38,10 @@ class EWFImgInfo(pytsk3.Img_Info):
     # Hiervoor moet iedere partitie worden gecontroleerd met de ingladen image
     # Waaruit een lijst wordt teruggestuurd met alleen de partities van deze image.
     def get_partitions(self):
+        '''
+        Ophalen van alle partities in image
+        :return: Arraylist van partities
+        '''
         partitions = []
         for part in self.partities:
             # Controleren of image path het zelfde is als huidige image (om foutieve resultaten uit te sluiten)
@@ -48,27 +52,49 @@ class EWFImgInfo(pytsk3.Img_Info):
     # Ophalen van partitie d.m.v. het unieke adres
     # Extra functionaliteit nodig voor het uitvoeren van web interface
     def get_partition(self, addr):
+        '''
+        Opvragen van partitie per addr
+        :param addr: partitie adres
+        :return: Partitie object
+        '''
         for part in self.get_partitions():
             if part.addr is addr:
                 return part
 
     # Afsluiten van de ewf stream
     def close(self):
+        '''
+        Afsluiten van EWF Handle
+        :return: None
+        '''
         self.ewf_handle.close()
 
     # Lezen van bytes uit image.
     # Offset is de positie waarvandaan het lezen moet worden gestart
     # Size is de lengte waarvan er gelezen moet worden
     def read(self, offset, size):
+        '''
+        Lezen van bytes uit image
+        :param offset: begin positie van image
+        :param size: grootte van image
+        :return: aangegeven bytes
+        '''
         self.ewf_handle.seek(offset)
         return self.ewf_handle.read(size)
 
-    # Uitlezen van de partitie grootte
     def get_size(self):
+        '''
+        Uitlezen van de partitie grootte
+        :return: Partitie grootte
+        '''
         return self.ewf_handle.get_media_size()
 
     # Printen van een lijst met alle partities
     def partition_report(self):
+        '''
+        Print een rapport van alle partities
+        :return: Nonen
+        '''
         partition_array = []
 
         for count in range(len(self.get_partitions())):

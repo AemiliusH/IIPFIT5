@@ -15,10 +15,18 @@ from Utils.VirusToal import *
 class Bestand():
 
     def __init__(self, main):
+        '''
+        Individuele bestand's module. Voert bewerkingen uit op Images
+        :param main: Referentie naar hoofdmenu
+        '''
         # Referentie naar hoofdmenu opslaan
         self.main = main
 
     def generate_hashlist(self):
+        '''
+        Genereerd een lijst met alle hashes van geselecteerde partitie
+        :return: None
+        '''
         # Gebruiker een partitie uit een image laten selecteren
         partitie = self.select_partition()
         # Array van bestanden opslaan
@@ -49,6 +57,10 @@ class Bestand():
 
 
     def generate_timeline(self):
+        '''
+        Genereerd lijst met alle bestanden van partitie in geselecteerde volgorde
+        :return: None
+        '''
         # Gebruiker een partitie uit image laten selecteren
         partitie = self.select_partition()
 
@@ -96,8 +108,14 @@ class Bestand():
                 array_list, 'Name;Size;Created;Changed;Modified;MD5;SHA256\n')
             self.main.database.write_log("Heeft een TimeLine weggeschreven naar CSV")
 
-    # Functie om dubbele array weg te schrijven naar CSV
+
     def save_array_to_csv(self, array, head):
+        '''
+        Functie om dubbele array weg te schrijven naar CSV
+        :param array: Array met data
+        :param head: Array met header namen
+        :return: None
+        '''
         # Bestandsnaam vragen aan gebruiker
         filename = raw_input('\nEnter Filename: ')
         # Referentie naar bestand openen (bestandsnaam + .csv)
@@ -108,8 +126,11 @@ class Bestand():
         for obj in array:
             file.write(';'.join(str(e) for e in obj) + '\n')
 
-    # Funcite om gebruiker een partitie te laten selecteren
     def select_partition(self):
+        '''
+        Funcite om gebruiker een partitie te laten selecteren
+        :return: Geselecteerde FSParInfo object
+        '''
         print 'Please select an image: '
         # printen van iedere image, met path. Waarvan de ID overeenkomt met de array positie
         for a in range(len(self.main.images)):
@@ -132,8 +153,12 @@ class Bestand():
         # returnen van partitie object
         return self.main.images[image].ewf_img_info.get_partitions()[part]
 
-    # Functie om gebruiker een file te laten selecteren
+
     def select_file(self):
+        '''
+        Functie om gebruiker een file te laten selecteren
+        :return: Geselecteerde FSFileInfo object
+        '''
         # Gebruiker een partiie laten selecteren
         partitie = self.select_partition()
         # Printing all files with ID
@@ -147,6 +172,10 @@ class Bestand():
         return partitie.files[file]
 
     def detect_language(self):
+        '''
+        Detecteerd taal per bestand
+        :return: None
+        '''
         # Getting object of selected file
         file_handle = self.select_file()
 
@@ -162,6 +191,11 @@ class Bestand():
         self.main.database.write_log("Heeft gezocht naar gebruikte talen")
 
     def generate_ziplist(self):
+        '''
+        Genereerd een lijst van alle bestanden in ZIP file
+        Gebaseerd op gebruikersinput
+        :return: None
+        '''
         # gebruiker een partiie laten selecteren
         partitie = self.select_partition()
         ziplist = []
@@ -203,6 +237,11 @@ class Bestand():
         zip.close()
 
     def generate_filetypelist(self):
+        '''
+        Genereerd een lijst met filetypes
+        Gebaseerd op gebruikresinput
+        :return: None
+        '''
         # alle files ophalen uit geselecteerde partitie
         files = self.select_partition().files
         file_array = []
@@ -231,8 +270,12 @@ class Bestand():
                 file_array, 'Extention;Description;FileName')
             self.main.database.write_log("Heeft een lijst van Filetypes weggeschreven naar CSV")
 
-    # CommandLineInterface Vanuit hier wordt de module aangestuurd
+
     def cli(self):
+        '''
+        CommandLineInterface Vanuit hier wordt de module aangestuurd
+        :return: None
+        '''
         while True:
             print ''
             print ' ' + '==' * 22
@@ -269,20 +312,31 @@ class Bestand():
             if input == 8:
                 break
 
-    # Bestand door virustotal halen
+
     def virustotal_file(self):
+        '''
+        Bestand door virustotal halen
+        :return: None
+        '''
         # Gebruiker een bestand laten selecteren
         file = self.select_file()
         # Virustotal class gebruiken
         total = VirusTotal(file).lookup_hash()
 
-    # Geselecteerd bestand exporteren
+
     def export_file(self):
+        '''
+        Geselecteerd bestand exporteren
+        :return: None
+        '''
         self.select_file().export()
 
 
-    # Starten van Bestand's module
     def run(self):
+        '''
+        Starten van Bestand's module
+        :return: None
+        '''
         # Wanneer er geen bruikbare images zijn terugkeren naar hoofdmenu
         if len(self.main.images) == 0:
             print "Please import an image before using modules!"
@@ -290,8 +344,14 @@ class Bestand():
             # Command Line Interface starten
             self.cli()
 
-    # Ongeimplementeerde API Funcites voor webinterface
+
     def generate_hashlist_api(self, image, partitie):
+        '''
+        Ongeimplementeerde API Funcites voor webinterface
+        :param image: Image ID
+        :param partitie: Partitie ID
+        :return: Array met hashes
+        '''
         img = self.main.images[image]
         par = img.ewf_img_info.get_partition(partitie)
         arr = []
@@ -300,6 +360,12 @@ class Bestand():
         return arr
 
     def generate_ziplist_api(self, image, partitie):
+        '''
+        Ongeimplementeerde API Funcites voor webinterface
+        :param image: Image ID
+        :param partitie: Partitie ID
+        :return: Array met zipfiles
+        '''
         img = self.main.images[image]
         par = img.ewf_img_info.get_partition(partitie)
         arr = []

@@ -16,6 +16,11 @@ class FSFileInfo():
     extention = ''
 
     def __init__(self, object_handle, path):
+        '''
+        Bevat file informatie en benodigde functionaliteiten om bestanden te kunnen verwerken
+        :param object_handle: Pointer naar fsobject
+        :param path: Path van bestand
+        '''
         # Opslaan van belangrijke parameters
         self.path = path
         self.object_handle = object_handle
@@ -33,13 +38,21 @@ class FSFileInfo():
         self.modify = datetime.utcfromtimestamp(
             self.object_handle.info.meta.mtime)
 
-    # Geeft een lijst terug met alle beschikbare meta-data van bestand
-    # Zeer bruikbaar om tabellen te genereren
+
     def get_attributes(self):
+        '''
+        Geeft een lijst terug met alle beschikbare meta-data van bestand
+        Zeer bruikbaar om tabellen te genereren
+        :return: Arraylist met alle meta-data
+        '''
         return [self.name, self.size, self.create, self.change, self.modify, self.md5(), self.sha256()]
 
-    # Exporteert een bestand vanuit image naar fysieke schijf
+
     def export(self):
+        '''
+        Exporteert een bestand vanuit image naar fysieke schijf
+        :return: None
+        '''
         # Uitlezen bytes van bestand
         raw_bytes = StringIO(self.object_handle.read_random(0, self.size))
         # Referentie openen naar export bestand op schijf
@@ -53,8 +66,13 @@ class FSFileInfo():
         db.write_log("Heeft het bestand: " + self.name + " Geexporteerd")
 
 
-    # Header of file
+
     def head(self, size=4):
+        '''
+        Verkrijg Header van file
+        :param size: Grootte van header (standaard 4)
+        :return: Bytes
+        '''
         # Leest eerste 4 bytes van file uit
         try:
             return self.object_handle.read_random(0, size)
@@ -62,30 +80,51 @@ class FSFileInfo():
             return ''
 
     def get_extention(self):
+        '''
+        Verkrijgen van extentie informatie vanuit FileType class
+        :return: FileType analyse object
+        '''
         # Gebruikt FileType class om extentie van bestand te analyseren
         return FileType(self).analyse()
 
     def read_raw_bytes(self):
+        '''
+        Lezen van bytes in try / except
+        :return: Alle bytes van file
+        '''
         try:
             # Lezen van raw bytes in try / except
             return self.object_handle.read_random(0, self.size)
         except IOError:
             return ''
 
-    # Uitlezen van alle woorden in bestand
+
     def get_strings(self):
+        '''
+        Uitlezen van alle woorden in bestand
+        Waarvan de lengte 4 of langer is
+        :return: arraylist met alle woorden in bestand
+        '''
         # Alle woorden uit bestand krijgen d.m.v. Regulair Expressions
         words = re.findall('[aA-zZ]+', self.read_raw_bytes())
         # Woorden filteren die langer zijn dan 4 karakters
         return [w for w in words if len(w) >= 4]
 
     def detect_language(self):
+        '''
+        Detecteren van taal waarin een besatnd is geschreven
+        :return: detect_langs array
+        '''
         # Omzetten van woordarray naar tekst
         text = ' '.join(self.get_strings())
         # Google's langdetect gebruiken om de taal van een bestand te achterhalen.
         return detect_langs(text)
 
     def print_language_table(self):
+        '''
+        Print een tabel van alle talen gebruikt in file
+        :return: None
+        '''
         # Getting all Languages from File
         languages = self.detect_language()
         language_array = []
@@ -97,6 +136,10 @@ class FSFileInfo():
 
     # Objecten hashen
     def md5(self):
+        '''
+        Bereken MD5 van bestand
+        :return: MD5 Hash
+        '''
         # Inladen van libhash's functie md5()
         libhash = hashlib.md5()
         # Bytes van bestand meegeven aan libhash
@@ -105,6 +148,10 @@ class FSFileInfo():
         return libhash.hexdigest()
 
     def sha1(self):
+        '''
+        Berekend SHA1 van bestand
+        :return: SHA1 Hash
+        '''
         # Inladen van libhash's functie Sha1()
         libhash = hashlib.sha1()
         # Bytes van bestand meegeven aan libhash
@@ -113,6 +160,10 @@ class FSFileInfo():
         return libhash.hexdigest()
 
     def sha256(self):
+        '''
+        Bereken SHA256 van bestand
+        :return: SHA256 Hash
+        '''
         # Inladen van libhash's functie Sha256()
         libhash = hashlib.sha256()
         # Bytes van bestand meegeven aan libhash

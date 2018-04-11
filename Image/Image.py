@@ -6,7 +6,10 @@ class Image():
     ewf_img_info = None
 
     def __init__(self, image_path):
-
+        '''
+        Image object, laad automatisch alle files en partities
+        :param image_path: Pad naar image
+        '''
         DebugLog("Loading image from: " + image_path)
 
         # Opslaan belangrijke parameter
@@ -23,8 +26,12 @@ class Image():
 
         # self.ewf_img_info.partition_report()
 
-    # Ophalen van alle bestanden uit image
+
     def get_all_files(self):
+        '''
+        Ophalen van alle bestanden uit image
+        :return: Arraylist met bestanden
+        '''
         files = []
         # Voor iedere image, alle files toevoegen aan de files array
         for partitie in self.ewf_img_info.get_partitions():
