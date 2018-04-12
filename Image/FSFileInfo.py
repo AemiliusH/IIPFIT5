@@ -56,7 +56,6 @@ class FSFileInfo():
         '''
         try:
             Logger('Exporting file:  ' + str(self.name))
-
             # Uitlezen bytes van bestand
             raw_bytes = StringIO(self.object_handle.read_random(0, self.size))
             # Referentie openen naar export bestand op schijf
@@ -83,7 +82,7 @@ class FSFileInfo():
 
             return self.object_handle.read_random(0, size)
         except:
-            ErrorLogger(True)
+            ErrorLogger()
             return ''
 
     def get_extention(self):
@@ -113,7 +112,7 @@ class FSFileInfo():
             # Lezen van raw bytes in try / except
             return self.object_handle.read_random(0, self.size)
         except IOError:
-            ErrorLogger(True)
+            ErrorLogger()
             return ''
 
     def get_strings(self):

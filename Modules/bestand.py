@@ -268,18 +268,23 @@ class Bestand():
         Debugger('Selected ZIP with ID: ' + str(zip_id))
         file_handle = ziplist[zip_id]
 
-        # Geselecteerde zipfile openen als virtueel bestand met StringIO
-        zip = ZipFile(StringIO(file_handle.read_raw_bytes()))
-        zip_array = []
-        # Infolist ophalen van zipfile
-        # Bestanden opslaan in zip_array om deze informatie te kunnen verwerken
-        for info in zip.infolist():
-            zip_array.append([info.filename, datetime.datetime(
-                *info.date_time), info.file_size])
+        try:
+            # Geselecteerde zipfile openen als virtueel bestand met StringIO
+            zip = ZipFile(StringIO(file_handle.read_raw_bytes()))
+            zip_array = []
+            # Infolist ophalen van zipfile
+            # Bestanden opslaan in zip_array om deze informatie te kunnen verwerken
+            for info in zip.infolist():
+                zip_array.append([info.filename,
+                    info.date_time, info.file_size])
+        except:
+            ErrorLogger(True)
 
 
         input = self.UserInput(['Print Filetypes','Export Filetypes (CSV)'])
 
+        print(input)
+        print 'zipdf'
 
         if input == 0:
             Debugger('Printing ZIP List')
