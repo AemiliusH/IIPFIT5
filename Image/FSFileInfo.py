@@ -54,13 +54,13 @@ class FSFileInfo():
         :return: None
         '''
 
-        Debugger('Exporting file:  ' + str(self.name))
+        Logger('Exporting file:  ' + str(self.name))
 
         # Uitlezen bytes van bestand
         raw_bytes = StringIO(self.object_handle.read_random(0, self.size))
         # Referentie openen naar export bestand op schijf
         # Naam van orginele file wordt gebruikt in uitvoer map
-        file = open(self.name, 'w')
+        file = open(self.name, 'wb')
         # Byte focus bij eerste byte leggen (vanaaf hier wordt niet uit gelezen)
         raw_bytes.seek(0)
         # Verplaatsen van bytes naar bestands referentie

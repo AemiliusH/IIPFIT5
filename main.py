@@ -110,7 +110,7 @@ class Hoofdmenu:
             print tabulate(log_array, headers=['ID', 'Handeling', 'Datum'])
         else:
             self.bestand.save_array_to_csv(
-                log_array, ['ID', 'Handeling', 'Datum'])
+                log_array, 'ID;Handeling;Datum\n')
 
 
 
