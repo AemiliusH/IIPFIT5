@@ -107,16 +107,16 @@ class Database():
         self.write_log("Case toegevoegd")
 
     def add_image(self):
-        img = None
+        img = ''
         img_path = None
         select_st = select([Case]).where(
             Case.ID == self.caseid)
         selected_case = self.conn.execute(select_st)
 
         # Eerst alle images uitlezen, vervolgens herschrijven
-        print "De ingeladen Images zijn: "
+        # print "De ingeladen Images zijn: "
         for row in selected_case:
-            print row.Image
+            #print row.Image
             img = row.Image
 
         path = raw_input("Voer het pad naar uw nieuwe Image in: ")

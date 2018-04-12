@@ -56,7 +56,7 @@ class Hoofdmenu:
 
     def add_image(self, path):
         # Toevoegen image aan hoofdmenu
-        Debugger('Adding Image: ' + str(path))
+        Logger('Adding Image: ' + str(path))
         self.images.append(Image(path))
 
     def cli(self):
@@ -65,34 +65,36 @@ class Hoofdmenu:
         # Vanuit commandline kan worden aangegeven welke module moet worden gestart
 
         while True:
+            try:
+                # Printen van alle opties
+                print ''
+                print '\t[1] Bestand'
+                print '\t[2] Browser'
+                print '\t[3] Foto'
+                print '\t[4] Add Image File'
+                print '\t[5] Logboek'
+                print '\t[0] Exit'
 
-            # Printen van alle opties
-            print ''
-            print '\t[1] Bestand'
-            print '\t[2] Browser'
-            print '\t[3] Foto'
-            print '\t[4] Add Image File'
-            print '\t[5] Logboek'
-            print '\t[0] Exit'
-
-            Debugger('Main Menu')
-            # Uitlezen gebruikersinput
-            input = int(raw_input('Please choose an option [0-9]: '))
-            Debugger('Selected Option: ' + str(input))
-            # Input verwerken en aanroepen juiste functie
-            if input == 1:
-                self.bestand.run()
-            if input == 2:
-                self.browser.run()
-            if input == 3:
-                self.foto.run()
-            if input == 4:
-                self.database.add_image()
-            if input == 5:
-                self.logboek()
-            if input == 0:
-                Debugger('Exiting Program...', True)
-                exit(1)
+                Debugger('Main Menu')
+                # Uitlezen gebruikersinput
+                input = int(raw_input('Please choose an option [0-9]: '))
+                Debugger('Selected Option: ' + str(input))
+                # Input verwerken en aanroepen juiste functie
+                if input == 1:
+                    self.bestand.run()
+                if input == 2:
+                    self.browser.run()
+                if input == 3:
+                    self.foto.run()
+                if input == 4:
+                    self.database.add_image()
+                if input == 5:
+                    self.logboek()
+                if input == 0:
+                    Debugger('Exiting Program...', True)
+                    exit(1)
+            except:
+                ErrorLogger()
 
     def print_header(self):
         print header

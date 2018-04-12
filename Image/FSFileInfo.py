@@ -39,13 +39,14 @@ class FSFileInfo():
             self.object_handle.info.meta.mtime)
 
     def get_attributes(self):
-        Debugger('Getting Attributes for ' +
-                 str(self.name))
         '''
         Geeft een lijst terug met alle beschikbare meta-data van bestand
         Zeer bruikbaar om tabellen te genereren
         :return: Arraylist met alle meta-data
         '''
+        Debugger('Getting Attributes for ' +
+                 str(self.name))
+
         return [self.name, self.size, self.create, self.change, self.modify, self.md5(), self.sha256()]
 
     def export(self):
@@ -53,18 +54,20 @@ class FSFileInfo():
         Exporteert een bestand vanuit image naar fysieke schijf
         :return: None
         '''
+        try:
+            Logger('Exporting file:  ' + str(self.name))
 
-        Logger('Exporting file:  ' + str(self.name))
-
-        # Uitlezen bytes van bestand
-        raw_bytes = StringIO(self.object_handle.read_random(0, self.size))
-        # Referentie openen naar export bestand op schijf
-        # Naam van orginele file wordt gebruikt in uitvoer map
-        file = open(self.name, 'wb')
-        # Byte focus bij eerste byte leggen (vanaaf hier wordt niet uit gelezen)
-        raw_bytes.seek(0)
-        # Verplaatsen van bytes naar bestands referentie
-        copyfileobj(raw_bytes, file)
+            # Uitlezen bytes van bestand
+            raw_bytes = StringIO(self.object_handle.read_random(0, self.size))
+            # Referentie openen naar export bestand op schijf
+            # Naam van orginele file wordt gebruikt in uitvoer map
+            file = open(self.name, 'wb')
+            # Byte focus bij eerste byte leggen (vanaaf hier wordt niet uit gelezen)
+            raw_bytes.seek(0)
+            # Verplaatsen van bytes naar bestands referentie
+            copyfileobj(raw_bytes, file)
+        except:
+            ErrorLogger(True)
 
     def head(self, size=4):
         '''
@@ -72,40 +75,45 @@ class FSFileInfo():
         :param size: Grootte van header (standaard 4)
         :return: Bytes
         '''
-
-        Debugger('Getting Header bytes for ' +
+        try:
+            Debugger('Getting Header bytes for ' +
                  str(self.name))
 
         # Leest eerste 4 bytes van file uit
-        try:
+
             return self.object_handle.read_random(0, size)
         except:
+            ErrorLogger(True)
             return ''
 
     def get_extention(self):
-
-        Debugger('Getting Extention for ' +
-                 str(self.name))
-
         '''
         Verkrijgen van extentie informatie vanuit FileType class
         :return: FileType analyse object
         '''
-        # Gebruikt FileType class om extentie van bestand te analyseren
-        return FileType(self).analyse()
+        try:
+            Debugger('Getting Extention for ' +
+                     str(self.name))
+
+            # Gebruikt FileType class om extentie van bestand te analyseren
+            return FileType(self).analyse()
+        except:
+            ErrorLogger(True)
 
     def read_raw_bytes(self):
         '''
         Lezen van bytes in try / except
         :return: Alle bytes van file
         '''
-        Debugger('Reading bytes from ' +
-                 str(self.name))
+
 
         try:
+            Debugger('Reading bytes from ' +
+                     str(self.name))
             # Lezen van raw bytes in try / except
             return self.object_handle.read_random(0, self.size)
         except IOError:
+            ErrorLogger(True)
             return ''
 
     def get_strings(self):
@@ -115,24 +123,31 @@ class FSFileInfo():
         :return: arraylist met alle woorden in bestand
         '''
 
-        Debugger('Getting all strings from' +
-                 str(self.name))
-        # Alle woorden uit bestand krijgen d.m.v. Regulair Expressions
-        words = re.findall('[aA-zZ]+', self.read_raw_bytes())
-        # Woorden filteren die langer zijn dan 4 karakters
-        return [w for w in words if len(w) >= 4]
+        try:
+            Debugger('Getting all strings from' +
+                     str(self.name))
+            # Alle woorden uit bestand krijgen d.m.v. Regulair Expressions
+            words = re.findall('[aA-zZ]+', self.read_raw_bytes())
+            # Woorden filteren die langer zijn dan 4 karakters
+            return [w for w in words if len(w) >= 4]
+        except:
+            ErrorLogger(True)
+            return []
 
     def detect_language(self):
         '''
         Detecteren van taal waarin een besatnd is geschreven
         :return: detect_langs array
         '''
-        Debugger('Detecting Language for ' +
-                 str(self.name))
-        # Omzetten van woordarray naar tekst
-        text = ' '.join(self.get_strings())
-        # Google's langdetect gebruiken om de taal van een bestand te achterhalen.
-        return detect_langs(text)
+        try:
+            Debugger('Detecting Language for ' +
+                     str(self.name))
+            # Omzetten van woordarray naar tekst
+            text = ' '.join(self.get_strings())
+            # Google's langdetect gebruiken om de taal van een bestand te achterhalen.
+            return detect_langs(text)
+        except:
+            ErrorLogger(True)
 
     def print_language_table(self):
         '''
@@ -140,14 +155,17 @@ class FSFileInfo():
         :return: None
         '''
 
-        # Getting all Languages from File
-        languages = self.detect_language()
-        language_array = []
-        for lang in languages:
-            # Converting them into a new array
-            language_array.append(str(lang).split(':'))
-        # Printing Array as Table
-        print tabulate(language_array, headers=['Language', '.%'])
+        try:
+            # Getting all Languages from File
+            languages = self.detect_language()
+            language_array = []
+            for lang in languages:
+                # Converting them into a new array
+                language_array.append(str(lang).split(':'))
+            # Printing Array as Table
+            print tabulate(language_array, headers=['Language', '.%'])
+        except:
+            ErrorLogger()
 
     # Objecten hashen
     def md5(self):
@@ -155,34 +173,45 @@ class FSFileInfo():
         Bereken MD5 van bestand
         :return: MD5 Hash
         '''
-
-        # Inladen van libhash's functie md5()
-        libhash = hashlib.md5()
-        # Bytes van bestand meegeven aan libhash
-        libhash.update(self.read_raw_bytes())
-        # Returning de hexadecimale vorm van de hash
-        return libhash.hexdigest()
+        try:
+            # Inladen van libhash's functie md5()
+            libhash = hashlib.md5()
+            # Bytes van bestand meegeven aan libhash
+            libhash.update(self.read_raw_bytes())
+            # Returning de hexadecimale vorm van de hash
+            return libhash.hexdigest()
+        except:
+            ErrorLogger(True)
+            return 'Error'
 
     def sha1(self):
         '''
         Berekend SHA1 van bestand
         :return: SHA1 Hash
         '''
-        # Inladen van libhash's functie Sha1()
-        libhash = hashlib.sha1()
-        # Bytes van bestand meegeven aan libhash
-        libhash.update(self.read_raw_bytes())
-        # Returning de hexadecimale vorm van de hash
-        return libhash.hexdigest()
+        try:
+            # Inladen van libhash's functie Sha1()
+            libhash = hashlib.sha1()
+            # Bytes van bestand meegeven aan libhash
+            libhash.update(self.read_raw_bytes())
+            # Returning de hexadecimale vorm van de hash
+            return libhash.hexdigest()
+        except:
+            ErrorLogger(True)
+            return 'Error'
 
     def sha256(self):
         '''
         Bereken SHA256 van bestand
         :return: SHA256 Hash
         '''
-        # Inladen van libhash's functie Sha256()
-        libhash = hashlib.sha256()
-        # Bytes van bestand meegeven aan libhash
-        libhash.update(self.read_raw_bytes())
-        # Returning de hexadecimale vorm van de hash
-        return libhash.hexdigest()
+        try:
+            # Inladen van libhash's functie Sha256()
+            libhash = hashlib.sha256()
+            # Bytes van bestand meegeven aan libhash
+            libhash.update(self.read_raw_bytes())
+            # Returning de hexadecimale vorm van de hash
+            return libhash.hexdigest()
+        except:
+            ErrorLogger(True)
+            return 'Error'

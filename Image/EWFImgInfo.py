@@ -16,22 +16,26 @@ class EWFImgInfo(pytsk3.Img_Info):
         :param image: Refrence to parent image
         :param raw: When an image is in raw format
         '''
-        # Opslaan belangrijke variable
-        self.image = image
-        self.ewf_handle = ewf_handle
 
-        if not raw:
-            # Aanroepen van pytsk3.Img_info class, deze laad de image naar pytsk3
-            super(EWFImgInfo, self).__init__(
-                url="", type=pytsk3.TSK_IMG_TYPE_EXTERNAL)
-        else:
-            super(EWFImgInfo, self).__init__(self.ewf_handle)
+        try:
+            # Opslaan belangrijke variable
+            self.image = image
+            self.ewf_handle = ewf_handle
 
-        # Opslaan van alle volumes
-        # pytsk3 is globaal, en werkt voor alle ingeladen images. Om deze rede is de functie get_partitions() gemaakt
-        # Deze kan onderscheid maken tussen de volumes van verschillende images
-        self.volumes = pytsk3.Volume_Info(self)
-        Logger("Loading Partitions of " + image.image_path)
+            if not raw:
+                # Aanroepen van pytsk3.Img_info class, deze laad de image naar pytsk3
+                super(EWFImgInfo, self).__init__(
+                    url="", type=pytsk3.TSK_IMG_TYPE_EXTERNAL)
+            else:
+                super(EWFImgInfo, self).__init__(self.ewf_handle)
+
+            # Opslaan van alle volumes
+            # pytsk3 is globaal, en werkt voor alle ingeladen images. Om deze rede is de functie get_partitions() gemaakt
+            # Deze kan onderscheid maken tussen de volumes van verschillende images
+            self.volumes = pytsk3.Volume_Info(self)
+            Logger("Loading Partitions of " + image.image_path)
+        except:
+            ErrorLogger(True)
 
         # Doorlopen van partitielijst en partities opslaan in geheugen
         for partition in self.volumes:
@@ -40,8 +44,11 @@ class EWFImgInfo(pytsk3.Img_Info):
                 # Waarvan de omschrijving niet is: Unallocated, Extended, Primary Table.
                 # Deze partitie types bevatten geen gebruikbare data
                 if "Unallocated" not in partition.desc and "Extended" not in partition.desc and "Primary Table" not in partition.desc:
-                    self.partities.append(
-                        FSParInfo(partition, self.volumes, self, self.image))
+                    try:
+                        self.partities.append(
+                            FSParInfo(partition, self.volumes, self, self.image))
+                    except:
+                        ErrorLogger(True)
 
     # Pytsk3 deelt alle volumes van alle ingeladen images
     # Hiervoor moet iedere partitie worden gecontroleerd met de ingladen image

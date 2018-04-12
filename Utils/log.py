@@ -27,7 +27,7 @@ class ErrorLogger:
         error.append(['File', str(trace[0])])
         error.append(['Message', str(exc_value)])
         error.append(['Line', str(trace[1])])
-        error.append(['Code', str(trace[2])])
+        error.append(['Function', str(trace[2])])
 
         error = tabulate(error, headers=['Type', 'value'])
 

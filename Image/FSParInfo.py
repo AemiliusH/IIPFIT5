@@ -43,7 +43,9 @@ class FSParInfo():
             self.fs_handle = pytsk3.FS_Info(
                 self.image_info, offset=self.partition_handle.start * self.volume_info.info.block_size)
         except IOError:
+            ErrorLogger()
             Logger("Unable to open Filesystem from " + self.desc)
+            return
 
         Logger("Succesfully Mounted FileSystem of " + self.desc)
 
@@ -95,6 +97,7 @@ class FSParInfo():
                     self.files.append(FSFileInfo(object, parent))
             except AttributeError:
                 Debugger('Error parsing Object: ' + object.info.name.name)
+                ErrorLogger()
 
     def recurse_files(self):
         '''
@@ -121,6 +124,7 @@ class FSParInfo():
                     self.files.append(FSFileInfo(object, parent))
             except AttributeError:
                 Debugger('Error parsing Object: ' + object.info.name.name)
+                ErrorLogger()
 
     def files_rapport(self):
         '''
