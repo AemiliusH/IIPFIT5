@@ -1,6 +1,6 @@
 # importeren van de libraries en modules
 
-import win32crypt
+#import win32crypt
 import os
 
 from Utils.FileType import *
@@ -23,7 +23,12 @@ class Browser:
         self.browse_arr = []
         self.browse_arr2 = []
 
+
     def generate_hashlist(self):
+        '''
+
+        :return: Lijst met gevonden bestanden + metadata op de gekozen Image + partitie
+        '''
         Debugger("Generating Hashlist..", True)
         #  Gebruiker een partitie uit een image laten selecteren
         partitie = self.select_partition()
@@ -49,34 +54,138 @@ class Browser:
 
     # Hier kan de gebruiker kiezen welke Image en welke partitie op de gekozen Image hij wilt onderzoeken
     def select_partition(self):
+        images_ref = self.hoofdmenu_refrentie.images
+        '''
+
+        :return: Gekozen Image + partitie
+        '''
         print 'Please select an image: '
         Debugger("Gebruiker kiest Image")
         #  Printing all images with their path
-        for a in range(len(self.hoofdmenu_refrentie.images)):
-            print '\t[' + str(a) + '] ' + self.hoofdmenu_refrentie.images[a].image_path
+        for a in range(len(images_ref)):
+            print '\t[' + str(a) + '] ' + images_ref[a].image_path
         image = int(raw_input('\nPlease Choose an option [0-9]: '))
-        Debugger("Gebruiker kiest Image " + str(image) + ": " + str(self.hoofdmenu_refrentie.images[a].image_path))
-        Logger("Gebruiker kiest Image " + str(image) + ": " + str(self.hoofdmenu_refrentie.images[a].image_path))
+        Debugger("Gebruiker kiest Image " + str(image) + ": " + str(images_ref[a].image_path))
+        Logger("Gebruiker kiest Image " + str(image) + ": " + str(images_ref[a].image_path))
         print 'Please select an Partition: '
         #  Printing all Partitions from Selected Image
-        for part in range(len(self.hoofdmenu_refrentie.images[image].ewf_img_info.get_partitions())):
-            partition_pointer = self.hoofdmenu_refrentie.images[image].ewf_img_info.get_partitions()[part]
+        partitions_ref = images_ref[image].ewf_img_info.get_partitions()
+        for part in range(len(partitions_ref)):
+            partition_pointer = partitions_ref[part]
             print '\t[' + str(part) + '] ' + partition_pointer.desc + " - " + str(partition_pointer.size / 1024) + "MB"
 
         part = int(raw_input('\nPlease Choose an option [0-9]: '))
-        Debugger("Gebruiker kiest Partitie " + str(part) + ": " + str(self.hoofdmenu_refrentie.images[image].ewf_img_info.get_partitions()[part].desc))
-        Logger("Gebruiker kiest Partitie " + str(part) + ": " + str(self.hoofdmenu_refrentie.images[image].ewf_img_info.get_partitions()[part].desc))
-        return self.hoofdmenu_refrentie.images[image].ewf_img_info.get_partitions()[part]
+        Debugger("Gebruiker kiest Partitie " + str(part) + ": " + str(partitions_ref[part].desc))
+        Logger("Gebruiker kiest Partitie " + str(part) + ": " + str(partitions_ref[part].desc))
+        return partitions_ref[part]
 
-    # deze verwijzing zorgt ervoor dat de geladen Images gevonden worden zodat ze in de functie hierboven gevonden kunnen worden
+    # deze verwijzing zorgt ervoor dat de geladen Images gevonden worden
+    # zodat ze in de functie hierboven gevonden kunnen worden
     def find_images(self):
+        '''
+
+        :return: Gevonden ingeladen images
+        '''
         self.hoofdmenu_refrentie.images[0].ewf_img_info.partities[0].files_rapport()
 
-    def cli(self):
+    def attributes(self):
+        '''
+
+        :return: Mogelijke browsers om attributen van te bekijken
+        '''
         # D.M.V. deze List te gebruiken worden de Browsers maar 1x geprint
         uniq_browser = []
         # Hier wordt de teller voor de gebruiker gedeclared
         i = 1
+        Debugger("Generating attributes of found Browsers...")
+        # Browser lijst wordt gedeclared zodat het programma kan kijken welke browsers gevonden zijn op de image
+        browser = self.browse_arr2
+        # Als de browser lijst niet leeg is wordt de for loop geactiveerd
+        if len(browser) > 0:
+            for bestand in browser:
+                # Zit de browser niet in de lijst "uniq_browser" dan wordt hij toegevoegd en de optie om de attributen hiervoor te kiezen gegeven
+                if "firefox.exe" not in uniq_browser:
+                    print "\t[", i, "] Attributes Mozilla Firefox"
+                    i = i + 1
+                    uniq_browser.append("firefox.exe")
+                    # print bestand
+                if "chrome.exe" not in uniq_browser:
+                    print "\t[", i, "] Attributes Google Chrome"
+                    i = i + 1
+                    uniq_browser.append("chrome.exe")
+            print "\t[0] back"
+
+            # Zit hij er wel in dan wordt de waarde van de keuze [i] gereset en de lijst geleegd
+            # Zo kan het programma opnieuw gebruikt worden voor andere images zonder dat er dubbele opties geprint worden
+            # Dit betekent wel dat er elke keer browser geidentificeerd moeten worden per andere Image
+            if "firefox.exe" in uniq_browser:
+                i = 1
+                uniq_browser = []
+            if "chrome.exe" in uniq_browser:
+                i = 1
+                uniq_browser = []
+            #keuze wordt gemaakt door de gebruiker
+            input1 = int(raw_input('Please choose an option: '))
+            if input1 == 1:
+                self.firefox()
+            if input1 == 2:
+                self.chrome()
+
+    def firefox(self):
+        '''
+
+        :return: Keuze van de gebruiker
+        '''
+        #Loopje om terug te keren naar het menu
+        while True:
+            print "\t[1] Cookies"
+            print "\t[2] Bookmarks"
+            print "\t[3] History"
+            print "\t[4] Downloads"
+            print "\t[0] Back"
+
+            input2 = int(raw_input('Please choose an option: '))
+            if input2 == 1:
+                self.cookies()
+            if input2 == 2:
+                self.bookmarks()
+            if input2 == 3:
+                self.history()
+            if input2 == 4:
+                self.downloads()
+            if input2 == 0:
+                break
+
+    def chrome(self):
+        '''
+
+        :return: Keuze van de gebruiker
+        '''
+        while True:
+            print "\t[1] Login Data"
+            print "\t[2] History"
+            print "\t[3] Cookies"
+            print "\t[4] Top Sites"
+            print "\t[0] Back"
+
+            input = int(raw_input('Please choose an option: '))
+
+            if input == 1:
+                self.chrome_login()
+            if input == 2:
+                self.chrome_history()
+            if input == 3:
+                self.cookies_chrome()
+            if input == 4:
+                self.chrome_topsites()
+            if input == 0:
+                break
+
+    def cli(self):
+        '''
+
+        :return: Keuze van de gebruiker
+        '''
         # Loop om terug te komen bij de opties
         while True:
             # Opties voor de gebruiker
@@ -91,73 +200,7 @@ class Browser:
             if inpoet == 1:
                 self.identify_browser_windows()
             if inpoet == 2:
-                Debugger("Generating attributes of found Browsers...")
-
-                # Browser lijst wordt gedeclared zodat het programma kan kijken welke browsers gevonden zijn op de image
-                browser = self.browse_arr2
-
-                # Als de browser lijst niet leeg is wordt de for loop geactiveerd
-                if len(browser) > 0:
-                    for bestand in browser:
-
-                        # Zit de browser niet in de lijst "uniq_browser" dan wordt hij toegevoegd en de optie om de attributen hiervoor te kiezen gegeven
-                        if "firefox.exe" not in uniq_browser:
-                            print "\t[",i,"] Attributes Mozilla Firefox"
-                            i = i + 1
-                            uniq_browser.append("firefox.exe")
-                            # print bestand
-                        if "chrome.exe" not in uniq_browser:
-                            print "\t[",i,"] Attributes Google Chrome"
-                            i = i + 1
-                            uniq_browser.append("chrome.exe")
-
-                    # Zit hij er wel in dan wordt de waarde van de keuze [i] gereset en de lijst geleegd
-                    # Zo kan het programma opnieuw gebruikt worden voor andere images zonder dat er dubbele opties geprint worden
-                    # Dit betekent wel dat er elke keer browser geidentificeerd moeten worden per andere Image
-                    if "firefox.exe" in uniq_browser:
-                        i = 1
-                        uniq_browser = []
-                    if "chrome.exe" in uniq_browser:
-                        i = 1
-                        uniq_browser = []
-                    input1 = int(raw_input('Please choose an option: '))
-                    if input1 == 1:
-                        print "\t[1] Cookies"
-                        print "\t[2] Bookmarks"
-                        print "\t[3] History"
-                        print "\t[4] Downloads"
-                        print "\t[0] Back"
-
-                        input2 = int(raw_input('Please choose an option: '))
-                        if input2 == 1:
-                            self.cookies()
-                        if input2 == 2:
-                            self.bookmarks()
-                        if input2 == 3:
-                            self.history()
-                        if input2 == 4:
-                            self.downloads()
-                        if input2 == 0:
-                            break
-                    if input1 == 2:
-                        print "\t[1] Chrome Login"
-                        print "\t[2] Chrome History"
-                        print "\t[3] Chrome Cookies"
-                        print "\t[4] Chrome Top Sites"
-                        print "\t[0] Back"
-
-                        input = int(raw_input('Please choose an option: '))
-
-                        if input == 1:
-                            self.chrome_login()
-                        if input == 2:
-                            self.chrome_history()
-                        if input == 3:
-                            self.cookies_chrome()
-                        if input == 4:
-                            self.chrome_topsites()
-                        if input == 0:
-                            break
+                self.attributes()
             if inpoet == 3:
                 self.generate_hashlist()
             # Break om uit de while loop te komen en terug te gaan naar het hoofdmenu
@@ -166,6 +209,10 @@ class Browser:
 
     # Hier worden de browser geidentificeerd
     def identify_browser_windows(self):
+        '''
+
+        :return: Lijst met gevonden Browsers
+        '''
         #  D.M.V. deze List te gebruiken worden de Browsers maar 1x geprint
         uniq_browser = []
         browse_arr = self.browse_arr
@@ -208,6 +255,10 @@ class Browser:
         Debugger("Browsers gevonden: " + str(uniq_browser))
 
     def cookies(self):
+        '''
+
+        :return: Cookies van Firefox
+        '''
         # In deze lijst worden de gevonden cookies opgeslagen
         cookies_arr = []
         paritie = self.select_partition()
@@ -219,13 +270,17 @@ class Browser:
             except UnicodeDecodeError:
                 continue
 
-            if 'cookies.sqlite' in bestand.name:
+            if bestand.name == 'cookies.sqlite':
+                #Bestand krijgt een andere naam zodat te onderscheiden is welke cookies bij welke browser horen
+                bestand.name = 'cookies_Firefox.sqlite'
+                #Vervolgens wordt hij geexporteerd
+                bestand.export()
                 path = bestand.name
                 #  Hier wordt de gevonden database gekoppeld aan een engine waardoor hij uit te lezen is
                 engine = create_engine('sqlite:///%s' % path, echo=False)
                 conn = engine.connect()
                 meta = MetaData(bind=engine)
-                moz_cookies = Table('newtable', meta, autoload=True)
+                moz_cookies = Table('moz_cookies', meta, autoload=True)
                 # Een select Statement om de juiste tabel uit te lezen
                 select_st = select([moz_cookies])
                 cookies = conn.execute(select_st)
@@ -238,6 +293,10 @@ class Browser:
                 Logger("Heeft Mozilla Firefox cookies gezocht")
 
     def cookies_chrome(self):
+        '''
+
+        :return: Cookies van Chrome
+        '''
         # In deze lijst worden de gevonden cookies opgeslagen
         cookies_arr = []
         paritie = self.select_partition()
@@ -249,8 +308,13 @@ class Browser:
             except UnicodeDecodeError:
                 continue
 
-            if 'cookies.sqlite' in bestand.name:
-                #  Hier wordt de gevonden database gekoppeld aan een engine waardoor hij uit te lezen is
+            if 'Cookies' in bestand.name:
+                # Hier wordt de gevonden database gekoppeld aan een engine waardoor hij uit te lezen is
+                # Omdat Chrome de databases niet als .sqlite opslaat wordt hier de naam verandert voordat hij geexport
+                # zodat de Engine hem alsnog kan uitlezen
+                # Bestand krijgt een andere naam zodat te onderscheiden is welke cookies bij welke browser horen
+                bestand.name = "cookies_chrome.sqlite"
+                bestand.export()
                 path = bestand.name
                 engine = create_engine('sqlite:///%s' % path, echo=False)
                 conn = engine.connect()
@@ -262,13 +326,17 @@ class Browser:
                 #  printen van de resultaten
                 print 'Gevonden cookie\'s in Google Chrome zijn: '
                 for cookie in cookies:
-                    pwd = win32crypt.CryptUnprotectData(cookie.encrypted_value)
-                    cookies_arr.append([cookie.host_key, cookie.name, str(pwd[1])])
-                print tabulate(cookies_arr, headers=["Host", "Naam", "Value"])
+                    #pwd = win32crypt.CryptUnprotectData(cookie.encrypted_value)
+                    cookies_arr.append([cookie.host_key, cookie.name])#, str(pwd[1])])
+                print tabulate(cookies_arr, headers=["Host", "Naam"])#,"value
                 Logger("Heeft Chrome cookies gezocht")
                 Debugger("Generating Found Cookies in Google Chrome")
 
     def bookmarks(self):
+        '''
+
+        :return: Bookmarks van Firefox
+        '''
         # In deze lijst worden de gevonden bookmarks opgeslagen
         bookmarks_arr = []
         paritie = self.select_partition()
@@ -280,9 +348,10 @@ class Browser:
             except UnicodeDecodeError:
                 continue
 
-            if 'places.sqlite' in bestand.name:
+            if bestand.name == 'places.sqlite':
+                # Bestand wordt geexporteerd zodat de Engine het kan uitlezen
                 bestand.export()
-                #  Hier wordt de gevonden database gekoppeld aan een engine waardoor hij uit te lezen is
+                # Hier wordt de gevonden database gekoppeld aan een engine waardoor hij uit te lezen is
                 path = bestand.name
                 engine = create_engine('sqlite:///%s' % path, echo=False)
                 conn = engine.connect()
@@ -291,7 +360,7 @@ class Browser:
                 # Een select Statement om de juiste tabel uit te lezen
                 select_st = select([moz_bookmarks])
                 bookmarks = conn.execute(select_st)
-                #  printen van de resultaten
+                # printen van de resultaten
                 print 'Gevonden Bookmarks\'s in Mozilla Firefox zijn: '
                 for bookmark in bookmarks:
                     bookmarks_arr.append([bookmark.id, bookmark.title])
@@ -300,20 +369,25 @@ class Browser:
                 Debugger("Generating found Bookmarks in Mozilla Firefox")
 
     def history(self):
+        '''
+
+        :return: Geschiedenis van Firefox
+        '''
         # In deze lijst worden de gevonden bezochte pagina's opgeslagen
         history_arr = []
         paritie = self.select_partition()
-        #  Elk bestand wordt doorzocht
+        # Elk bestand wordt doorzocht
         for bestand in paritie.files:
-            #  Om te voorkomen dat het programma crasht worden alleen de bestandsnamen die in utf-8 te lezen zijn doorgevoerd
+            # Om te voorkomen dat het programma crasht worden alleen de bestandsnamen die in utf-8 te lezen zijn doorgevoerd
             try:
                 bestand.name.decode()
             except UnicodeDecodeError:
                 continue
 
-            if 'places.sqlite' in bestand.name:
+            if bestand.name == 'places.sqlite':
+                # Bestand wordt geexporteerd zodat de Engine het kan uitlezen
                 bestand.export()
-                #  Hier wordt de gevonden database gekoppeld aan een engine waardoor hij uit te lezen is
+                # Hier wordt de gevonden database gekoppeld aan een engine waardoor hij uit te lezen is
                 path = bestand.name
                 engine = create_engine('sqlite:///%s' % path, echo=False)
                 conn = engine.connect()
@@ -331,6 +405,10 @@ class Browser:
                 Debugger("Generating History found in Mozilla Firefox")
 
     def downloads(self):
+        '''
+
+        :return: Downloads van Firefox
+        '''
         # In deze lijst worden de gevonden downloads opgeslagen
         downloads_arr = []
         paritie = self.select_partition()
@@ -341,10 +419,11 @@ class Browser:
                 bestand.name.decode()
             except UnicodeDecodeError:
                 continue
-
-            if 'downloads.sqlite' in bestand.name:
-                #  bestand.export_to()
-                path = bestand.name #  bestand.name
+            if bestand.name == 'downloads.sqlite':
+                #Bestand wordt geexporteerd zodat de Engine het kan uitlezen
+                bestand.export()
+                # Hier wordt de gevonden database gekoppeld aan een engine waardoor hij uit te lezen is
+                path = bestand.name
                 engine = create_engine('sqlite:///%s' % path, echo=False)
                 conn = engine.connect()
                 meta = MetaData(engine)
@@ -361,18 +440,27 @@ class Browser:
                 Debugger("Generating Mozilla Firefox Downloaded files")
 
     def chrome_login(self):
+        '''
+
+        :return: Login Data van Chrome
+        '''
         # In deze lijst worden de gevonden Login Data opgeslagen
         chrome_arr = []
         paritie = self.select_partition()
         #  Elk bestand wordt doorzocht
         for bestand in paritie.files:
+            #  Om te voorkomen dat het programma crasht worden alleen de bestandsnamen die in utf-8 te lezen zijn doorgevoerd
             try:
                 bestand.name.decode()
             except UnicodeDecodeError:
-                pass
-            if 'Login Data.sqlite' in bestand.name: # cookies = Login Data
-                #bestand.export()
-                path = bestand.name  #  "Database\\" + bestand.name
+                continue
+            if 'Login Data' in bestand.name:
+                # Hier wordt de gevonden database gekoppeld aan een engine waardoor hij uit te lezen is
+                # Omdat Chrome de databases niet als .sqlite opslaat wordt hier de naam verandert voordat hij gexport
+                # zodat de Engine hem alsnog kan uitlezen
+                bestand.name = "Login Data.sqlite"
+                bestand.export()
+                path = bestand.name
                 #  Hier wordt de gevonden database gekoppeld aan een engine waardoor hij uit te lezen is
                 engine = create_engine('sqlite:///%s' % path, echo=False)
                 conn = engine.connect()
@@ -380,116 +468,90 @@ class Browser:
                 moz_cookies = Table('logins', meta, Column("origin_url", Integer, primary_key=True), autoload=True, autoload_with=engine)
                 select_st = select([moz_cookies])
                 cookies = conn.execute(select_st)
+                #Printen van de resultaten
                 print 'Gevonden login\'s in Google Chrome zijn: '
                 for cookie in cookies:
-                    pwd = win32crypt.CryptUnprotectData(cookie.password_value)
-                    chrome_arr.append([cookie.origin_url, cookie.username_value, cookie.times_used, str(pwd[1])])
-                print tabulate(chrome_arr, headers=["URL","Username","Hoe vaak gebruikt","Wachtwoord"])
+                    #pwd = win32crypt.CryptUnprotectData(cookie.password_value)#Dit kan gebruikt worden om de passwords te vinden,
+                    # helaas werkt het alleen wanneer de database van de pc van de gebruiker zelf komt en zal dus niet gebruikt worden
+                    chrome_arr.append([cookie.origin_url, cookie.username_value, cookie.times_used])#, str(pwd[1])])
+                print tabulate(chrome_arr, headers=["URL","Username","Hoe vaak gebruikt"])#,"Wachtwoord"])
                 Logger("Heeft Chrome login data gezocht")
                 Debugger("Generating found Chrome Login Data + passwords")
 
     def chrome_history(self):
-        Logger("Heeft Chrome History gezocht")
+        '''
+
+        :return: Geschiedenis van Chrome
+        '''
+        # In deze lijst worden de gevonden downloads opgeslagen
         chrome_arr = []
         paritie = self.select_partition()
+        #  Elk bestand wordt doorzocht
         for bestand in paritie.files:
+            #  Om te voorkomen dat het programma crasht worden alleen de bestandsnamen die in utf-8 te lezen zijn doorgevoerd
             try:
                 bestand.name.decode()
             except UnicodeDecodeError:
                 continue
 
-            if 'History.sqlite' in bestand.name:
-                bestand.export_to()
-                path = bestand.name  #  bestand.name
+            if 'History' in bestand.name:
+                # Hier wordt de gevonden database gekoppeld aan een engine waardoor hij uit te lezen is
+                # Omdat Chrome de databases niet als .sqlite opslaat wordt hier de naam verandert voordat hij gexport
+                # zodat de Engine hem alsnog kan uitlezen
+                bestand.name = "History.sqlite"
+                bestand.export()
+                path = bestand.name
                 engine = create_engine('sqlite:///%s' % path, echo=False)
                 conn = engine.connect()
-                meta = MetaData(engine)
+                meta = MetaData(bind=engine)
                 moz_cookies = Table('urls', meta, Column("id", Integer, primary_key=True), autoload=True)
                 select_st = select([moz_cookies])
                 cookies = conn.execute(select_st)
+                # Printen van de resultaten
                 print 'Gevonden bezochte pagina\'s in Google Chrome zijn: '
                 for cookie in cookies:
-                    for bestand in chrome_arr:
-                        if cookie.id not in chrome_arr:
-                            chrome_arr.append([cookie.id, cookie.url, cookie.title, cookie.visit_count])
+                    chrome_arr.append([cookie.id, cookie.url, cookie.title, cookie.visit_count])
                 print tabulate(chrome_arr, headers=["ID", "URL", "Naam", "Hoe vaak bezocht"])
+                Logger("Heeft Chrome History gezocht")
+                Debugger("Generating Chrome History")
+
 
     def chrome_topsites(self):
-        Logger("Heeft Chrome's meest bezochte pagina's gezocht")
+        '''
+
+        :return: TopSites van Chrome
+        '''
+        # In deze lijst worden de gevonden top_sites opgeslagen
         chrome_arr = []
         paritie = self.select_partition()
+        #  Elk bestand wordt doorzocht
         for bestand in paritie.files:
             try:
                 bestand.name.decode()
             except UnicodeDecodeError:
                 continue
 
-            if 'Top Sites.sqlite' in bestand.name:
+            if 'Top Sites' in bestand.name:
+                # Omdat Chrome de databases niet als .sqlite opslaat wordt hier de naam verandert voordat hij gexport
+                # zodat de Engine hem alsnog kan uitlezen
+                bestand.name = 'Top Sites.sqlite'
                 bestand.export()
-                path = bestand.name  #  bestand.name
+                path = bestand.name
                 engine = create_engine('sqlite:///%s' % path, echo=False)
                 conn = engine.connect()
                 meta = MetaData(engine)
                 moz_history = Table('thumbnails', meta, autoload=True)
                 select_st = select([moz_history])
                 cookies = conn.execute(select_st)
+                # Printen van de resultaten
                 print 'Meest bezochte pagina\'s in Google Chrome zijn: '
                 for cookie in cookies:
-                    # koenkie = self.hoofdmenu_refrentie.is_ascii(cookie)
                     chrome_arr.append([cookie.url, cookie.title, cookie.boring_score])
                 print tabulate(chrome_arr, headers=["URL", "TITLE", "Boring Score(in %)"])
+                Logger("Heeft Chrome's meest bezochte pagina's gezocht")
+                Debugger("Generating list of visited pages Chrome")
 
     def run(self):
         print 'Hallo Wereld, dit is de Browsermodule!'
+        #Start de Cli zodat het menu getoond wordt
         self.cli()
-        #  for partitie in self.main.images[0].ewf_img_info.partities:
-        #     print partitie.desc
-
-        #  for bestand in self.main.images[0].ewf_img_info.partities[0].files:
-        #     print bestand.name
-
-        '''if "firefox.exe" in bestand.name:
-            print "firefox gevonden \t" + bestand.name + '\t' + bestand.sha256()
-        if "opera.exe" in bestand.name:
-            print "opera gevonden \t" + bestand.name + '\t' + bestand.sha256()'''
-
-        '''def generate_hashlist(self):
-        # TODO: Selecteren van image
-        self.hoofdmenu_refrentie.images[0].ewf_img_info.partition_report()
-        input = int(raw_input('Please choose an parition to generate hashlist for [0-9]: '))
-        self.hoofdmenu_refrentie.images[0].ewf_img_info.get_partitions()[input].files_rapport()'''
-
-        #  dbPath = self.hoofdmenu_refrentie.images[0].ewf_img_info.partities[0].files[486]
-        #  engine = create_engine('sqlite:///%s' % dbPath, echo=True)
-
-        '''#  Create a MetaData instance
-        metadata = MetaData()
-        print metadata.tables
-
-        #  reflect db schema to MetaData
-        metadata.reflect(bind=engine)
-        print metadata.tables'''
-
-        '''def tel_files(self):
-            for file in range(len(self.hoofdmenu_refrentie.images[0].ewf_img_info.partities[0].files)):
-                try:
-                    print '\t[' + str(file) + '] ' + \
-                          self.hoofdmenu_refrentie.images[0].ewf_img_info.get_partitions()[0].files[file].name
-                except:
-                    pass'''
-
-        '''if "cookies.sqlite" in bestand.name:
-        dbPath = bestand.name
-
-        engine = create_engine('sqlite:///%s' % dbPath, echo=True)
-
-        metadata = MetaData(engine)
-        moz_bookmarks = Table('moz_bookmarks', metadata, autoload=True)
-        mapper(self.Bookmarks, moz_bookmarks)
-
-        Session = sessionmaker(bind=engine)
-        session = Session()
-        return session.query(self.Bookmarks).all()
-
-         for x in bestand.get_strings():
-            print str(x)'''
