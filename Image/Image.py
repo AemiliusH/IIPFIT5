@@ -11,28 +11,31 @@ class Image():
         :param image_path: Pad naar image
         '''
 
-        Debugger("Loading Image From: " + image_path)
-
-        # Opslaan belangrijke parameter
-        self.image_path = image_path
-
         try:
-            # Opening Image in pyEWF
-            self.image_files = pyewf.glob(self.image_path)
-            self.ewf_handle = pyewf.handle()
-            self.ewf_handle.open(self.image_files)
+            Debugger("Loading Image From: " + image_path)
 
-            # Aanmaken van EWFImage Class, deze combineert EWF met Pytsk3
-            self.ewf_img_info = EWFImgInfo(self.ewf_handle, self)
-            Logger("Succesfully Loaded as EWF format" + image_path)
-        except IOError:
+            # Opslaan belangrijke parameter
+            self.image_path = image_path
+
             try:
-                Logger("Error opening image with EWF... Attempting raw mode")
-                self.ewf_img_info = EWFImgInfo(self.image_path, self, True)
-                Logger("Succesfully Loaded as RAW format" + image_path)
-            except:
-                raise Exception(
-                    'Unable to open image as filesystem: Cannot determine file system type')
+                # Opening Image in pyEWF
+                self.image_files = pyewf.glob(self.image_path)
+                self.ewf_handle = pyewf.handle()
+                self.ewf_handle.open(self.image_files)
+
+                # Aanmaken van EWFImage Class, deze combineert EWF met Pytsk3
+                self.ewf_img_info = EWFImgInfo(self.ewf_handle, self)
+                Logger("Succesfully Loaded as EWF format" + image_path)
+            except IOError:
+                try:
+                    Logger("Error opening image with EWF... Attempting raw mode")
+                    self.ewf_img_info = EWFImgInfo(self.image_path, self, True)
+                    Logger("Succesfully Loaded as RAW format" + image_path)
+                except:
+                    raise Exception(
+                        'Unable to open image as filesystem: Cannot determine file system type')
+        except:
+            ErrorLogger()
 
     def get_all_files(self):
         '''

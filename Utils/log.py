@@ -1,3 +1,5 @@
+import traceback
+import sys
 from datetime import *
 from tabulate import tabulate
 from Database import *
@@ -15,14 +17,50 @@ class bcolors:
     UNDERLINE = '\033[4m'
 
 
-class Logger():
+class ErrorLogger:
+    def __init__(self, console=False):
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        trace = traceback.extract_tb(exc_traceback)[0]
+
+        error = []
+        error.append(['Type', str(exc_type)])
+        error.append(['File', str(trace[0])])
+        error.append(['Message', str(exc_value)])
+        error.append(['Line', str(trace[1])])
+        error.append(['Code', str(trace[2])])
+
+        error = tabulate(error, headers=['Type', 'value'])
+
+        db = Database(None)
+        db.write_error(error)
+        if console:
+            print self.timestamp(), 'An error occured!'
+            print error
+
+    def timestamp(self):
+        '''
+        Getting current timestamp as string
+        :return: Timestamp as formatted string
+        '''
+        return str('[' + datetime.now().strftime('%Y-%m-%d %H:%M:%S') + ']')
+
+class Logger:
     def __init__(self, bericht, console=True):
+        '''
+        Logger thats writing to console by default
+        :param bericht: Text input
+        :param console: Boolean default true
+        '''
         db = Database(None)
         db.write_log(bericht)
         if console:
             print self.timestamp(), bericht
 
     def timestamp(self):
+        '''
+        Getting current timestamp as string
+        :return: Timestamp as formatted string
+        '''
         return str('[' + datetime.now().strftime('%Y-%m-%d %H:%M:%S') + ']')
 
 
@@ -31,9 +69,13 @@ class Debugger():
         db = Database(None)
         db.write_log(str('[Debug] ' + bericht))
         if console:
-            print str(self.timestamp() + Debug + bericht)
+            print str(self.timestamp() + bericht)
 
     def timestamp(self):
+        '''
+        Getting current timestamp as string
+        :return: Timestamp as formatted string
+        '''
         return str('[' + datetime.now().strftime('%Y-%m-%d %H:%M:%S') + ']')
 
 

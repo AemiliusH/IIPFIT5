@@ -10,7 +10,12 @@ class EWFImgInfo(pytsk3.Img_Info):
     partities = []
 
     def __init__(self, ewf_handle, image, raw=False):
-
+        '''
+        Subclass to pytsk3 ImgInfo
+        :param ewf_handle: Handle to ewf_object, when reading raw images, this should be the image path
+        :param image: Refrence to parent image
+        :param raw: When an image is in raw format
+        '''
         # Opslaan belangrijke variable
         self.image = image
         self.ewf_handle = ewf_handle

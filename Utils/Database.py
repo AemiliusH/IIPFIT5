@@ -130,6 +130,24 @@ class Database():
         # Stap loggen!!
         self.write_log("Nieuw Image toegevoegd aan Case")
 
+
+
+    '''  __tablename__ = 'Error_Logs'
+    ID= Column(Integer(), primary_key=True)
+    Melding = Column(String(50))
+    Tijd = Column(Integer())
+    UserID = Column(Integer(), ForeignKey('User.ID'))
+    CaseID = Column(Integer(), ForeignKey('Case.ID'))
+
+'''
+
+    def write_error(self, bericht):
+        log = Error_Logs(Melding=bericht, Tijd=datetime.now(), UserID=self.userid, CaseID=self.caseid)
+
+        self.session.add(log)
+        self.session.commit()
+
+
     def write_log(self, bericht):
         # Log wegschrijven met self.userid en CaseID / Timestamp
         log = Logboek(UserID=self.userid, CaseID=self.caseid,

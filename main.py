@@ -43,9 +43,11 @@ class Hoofdmenu:
 
         Debugger('Done initalising Modules!')
         Debugger('Running user CLI')
-        # self.database.run()
+
         self.database.run()
         self.cli()
+
+
 
         # Optioneel: Websocket
         #self.web = Socket(5002, 'Forensic Toolkit', self)
