@@ -1,18 +1,13 @@
 # importeren van de libraries en modules
 
 #import win32crypt
-import os
 
 from Utils.FileType import *
 from sqlalchemy import create_engine, MetaData, Table
 from sqlalchemy import Column, Integer, select
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.ext.declarative import declarative_base
 from tabulate import tabulate
 from Utils.log import *
-from Utils.Models import *
-
-
+#from Utils.Models import *
 
 
 class Browser:
@@ -22,7 +17,6 @@ class Browser:
         self.hoofdmenu_refrentie = hoofdmenu
         self.browse_arr = []
         self.browse_arr2 = []
-
 
     def generate_hashlist(self):
         '''
@@ -51,6 +45,7 @@ class Browser:
         print tabulate(array_list, headers=[
                        'Name', 'Size', 'Created', 'Changed', 'Modified', 'MD5', 'SHA256'])
         Logger("Heeft een lijst van hashes gegenereert op het scherm")
+        Debugger("Generating list of hashes...")
 
     # Hier kan de gebruiker kiezen welke Image en welke partitie op de gekozen Image hij wilt onderzoeken
     def select_partition(self):
@@ -454,18 +449,15 @@ class Browser:
                 bestand.name.decode()
             except UnicodeDecodeError:
                 continue
-            if 'Login Data' in bestand.name:
-                # Hier wordt de gevonden database gekoppeld aan een engine waardoor hij uit te lezen is
-                # Omdat Chrome de databases niet als .sqlite opslaat wordt hier de naam verandert voordat hij gexport
-                # zodat de Engine hem alsnog kan uitlezen
-                bestand.name = "Login Data.sqlite"
+            if bestand.name == 'Login Data':
+                # Bestand wordt geexporteerd zodat de Engine het kan uitlezen
                 bestand.export()
                 path = bestand.name
                 #  Hier wordt de gevonden database gekoppeld aan een engine waardoor hij uit te lezen is
                 engine = create_engine('sqlite:///%s' % path, echo=False)
                 conn = engine.connect()
-                meta = MetaData(bind=engine)
-                moz_cookies = Table('logins', meta, Column("origin_url", Integer, primary_key=True), autoload=True, autoload_with=engine)
+                meta = MetaData(engine)
+                moz_cookies = Table('logins', meta, Column("origin_url", Integer, primary_key=True), autoload=True)
                 select_st = select([moz_cookies])
                 cookies = conn.execute(select_st)
                 #Printen van de resultaten
@@ -494,12 +486,10 @@ class Browser:
             except UnicodeDecodeError:
                 continue
 
-            if 'History' in bestand.name:
-                # Hier wordt de gevonden database gekoppeld aan een engine waardoor hij uit te lezen is
-                # Omdat Chrome de databases niet als .sqlite opslaat wordt hier de naam verandert voordat hij gexport
-                # zodat de Engine hem alsnog kan uitlezen
-                bestand.name = "History.sqlite"
+            if bestand.name == 'History':
+                # Bestand wordt geexporteerd zodat de Engine het kan uitlezen
                 bestand.export()
+                # Hier wordt de gevonden database gekoppeld aan een engine waardoor hij uit te lezen is
                 path = bestand.name
                 engine = create_engine('sqlite:///%s' % path, echo=False)
                 conn = engine.connect()
@@ -531,11 +521,10 @@ class Browser:
             except UnicodeDecodeError:
                 continue
 
-            if 'Top Sites' in bestand.name:
-                # Omdat Chrome de databases niet als .sqlite opslaat wordt hier de naam verandert voordat hij gexport
-                # zodat de Engine hem alsnog kan uitlezen
-                bestand.name = 'Top Sites.sqlite'
+            if bestand.name == 'Top Sites':
+                # Bestand wordt geexporteerd zodat de Engine het kan uitlezen
                 bestand.export()
+                # Hier wordt de gevonden database gekoppeld aan een engine waardoor hij uit te lezen is
                 path = bestand.name
                 engine = create_engine('sqlite:///%s' % path, echo=False)
                 conn = engine.connect()
