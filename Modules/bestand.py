@@ -25,6 +25,11 @@ class Bestand():
         self.main = main
 
     def UserInput(self, options):
+        '''
+        Vraagt de gebruiken een vraag, en is verplicht daar antwoord op te geven
+        :param options: arraylist met opties die gevraagt worden
+        :return: Nopes
+        '''
         while True:
             for a in range(len(options)):
                 print '\t [' + str(a) + '] ' + str(options[a])
@@ -35,16 +40,6 @@ class Bestand():
             except:
                 print ''
                 pass
-
-    def isValid(self, value, options):
-        try:
-            if value in options:
-                return True
-            else:
-                print '\tPlease select an valid option: ' + options
-                return False
-        except:
-            ErrorLogger()
 
     def generate_hashlist(self):
         '''
